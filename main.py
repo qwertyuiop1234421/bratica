@@ -1297,6 +1297,9 @@ async def public_directions():
 # ============================================================
 # ЛОКАЛЬНЫЙ ЗАПУСК
 # ============================================================
+print("BASE:", BASE)
+print("admin_login exists:", (BASE / "admin_login.html").exists())
+print("files:", [item.name for item in BASE.iterdir()])
 
 if __name__ == "__main__":
     import uvicorn
