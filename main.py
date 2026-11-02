@@ -23,7 +23,9 @@ STATIC_DIR = BASE / "static"
 STATIC_DIR.mkdir(exist_ok=True)
 
 DB = os.getenv("DB_FILE", str(BASE / "bratica.db"))
-SESSION_DAYS = 7
+SESSION_DAYS = 30
+SHORT_SESSION_SECONDS = 8 * 60 * 60
+REMEMBER_SESSION_SECONDS = SESSION_DAYS * 24 * 60 * 60
 
 # Для локального запуска COOKIE_SECURE=false.
 # Для Render с HTTPS можно поставить COOKIE_SECURE=true.
@@ -527,7 +529,12 @@ async def login_page():
 
 
 @app.post("/admin/login")
-async def login(email: str = Form(...), password: str = Form(...)):
+async def login(
+    email: str = Form(...),
+    password: str = Form(...),
+    remember: Optional[str] = Form(None),
+):
+
     connection = db()
     user = connection.execute(
         "SELECT * FROM users WHERE email=? AND active=1",
@@ -547,8 +554,14 @@ async def login(email: str = Form(...), password: str = Form(...)):
     with connection:
         connection.execute(
             "INSERT INTO sessions(token, user_id, expires_at) VALUES(?,?,?)",
-            (token, user["id"], now() + SESSION_DAYS * 86400),
-        )
+            session_seconds = (
+    REMEMBER_SESSION_SECONDS
+    if remember == "1"
+    else SHORT_SESSION_SECONDS
+)
+
+(token, user["id"], now() + session_seconds)
+
 
     connection.close()
 
@@ -559,7 +572,8 @@ async def login(email: str = Form(...), password: str = Form(...)):
         httponly=True,
         secure=COOKIE_SECURE,
         samesite="lax",
-        max_age=SESSION_DAYS * 86400,
+        max_age=session_seconds if remember == "1" else None,
+
     )
     return response
 
