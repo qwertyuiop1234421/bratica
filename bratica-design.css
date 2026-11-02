@@ -1,0 +1,78 @@
+/* BRATICA visual refresh — подключить после встроенных <style> в index.html и admin.html */
+:root{--bg:#08070c;--panel:#121018;--panel2:#191421;--purple:#bf45ff;--ink:#fbf8ff;--muted:#b8adbf;--line:#ffffff20;--max:1180px;--accent-glow:0 18px 55px #a327eb22}
+*{box-sizing:border-box}
+body{background-color:var(--bg)}
+::selection{background:#bd43ff66;color:#fff}
+:focus-visible{outline:2px solid #d17aff!important;outline-offset:3px}
+/* Публичный сайт */
+.top{background:#09070d!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;isolation:isolate;box-shadow:0 8px 28px #0005}
+.top:before{content:"";position:absolute;inset:0;background:#09070d;z-index:-1}
+.nav{position:relative;z-index:1}
+.hero{min-height:min(760px,calc(100svh - 72px));}
+.hero:before{background-image:linear-gradient(90deg,#09070df5 0%,#09070dcc 42%,#09070d30 100%),linear-gradient(0deg,#09070d,transparent 48%),url('https://unlimbot.hb.ru-msk.vkcloud-storage.ru/uploads/7d34ef724da04c03bf008e71e892fba5a80a9f119a4796fc.jpg');background-position:center 38%;}
+.btn,.cta,.mobile-cta a{box-shadow:0 12px 32px #a52be53b;transition:transform .22s ease,filter .22s ease,box-shadow .22s ease}
+.btn:hover,.cta:hover,.mobile-cta a:hover{transform:translateY(-2px);box-shadow:0 16px 38px #a52be55c}
+.direction,.price,.trainer,.form,.schedule-wrap,.transform,.gallery figure{box-shadow:var(--accent-glow);transition:border-color .2s ease,transform .2s ease}
+.direction:hover,.price:hover,.trainer:hover{border-color:#c85aff77}
+.direction{border-radius:20px}
+.price{border-radius:20px}
+.form{background:linear-gradient(145deg,#17121c,#100d14);border-color:#ffffff22}
+.field input,.field select,.field textarea{min-height:46px}
+.field textarea{min-height:100px}
+/* Карточки тренеров: индивидуальное кадрирование; корректируйте проценты под фото клуба */
+.trainer{height:450px;background:#151019}
+.trainer img{object-fit:cover;object-position:center 18%;}
+.trainer:nth-child(1) img{object-position:center 16%}
+.trainer:nth-child(2) img{object-position:center 14%}
+.trainer:nth-child(3) img{object-position:center 12%}
+.trainer:nth-child(4) img{object-position:center 20%}
+.trainer-info{padding:14px;border-radius:0 0 15px 15px;background:linear-gradient(0deg,#09070df2,transparent)}
+/* Фиксированная мобильная кнопка не должна перекрывать футер и содержимое */
+@media(max-width:650px){
+ body{padding-bottom:calc(82px + env(safe-area-inset-bottom))}
+ .top{height:62px;top:0}
+ .navlinks{background:#100d14!important;backdrop-filter:none!important}
+ .hero{min-height:610px;min-height:min(720px,calc(100svh - 62px));}
+ .trainer{height:330px}
+ .trainer:nth-child(4){height:360px}
+ .mobile-cta{bottom:calc(9px + env(safe-area-inset-bottom));background:#151019;border-color:#ffffff30;box-shadow:0 8px 30px #0009}
+ .mobile-cta a{padding:12px 10px}
+ .foot-bottom{padding-bottom:8px}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+/* CRM: профессиональная рабочая панель */
+.layout{background:radial-gradient(ellipse at 80% -10%,#69208a22,transparent 36%),var(--bg)}
+.side{background:#0d0b12;border-right-color:#ffffff18}
+.brand{letter-spacing:.11em}
+.nav button{transition:background .18s ease,color .18s ease,transform .18s ease}
+.nav button:hover{transform:translateX(2px)}
+.nav button.active{box-shadow:inset 3px 0 #c64cff;background:linear-gradient(90deg,#ae2ae52a,#ae2ae508)}
+.main{padding-top:34px}
+.top{padding-bottom:18px;border-bottom:1px solid #ffffff14}
+.top h1{letter-spacing:-.035em}
+.card,.box{background:linear-gradient(145deg,#17131d,#100d14);border-color:#ffffff19;box-shadow:0 14px 44px #0002}
+.card{min-height:112px;transition:transform .2s ease,border-color .2s ease}
+.card:hover{transform:translateY(-2px);border-color:#bd43ff55}
+.card b{font-variant-numeric:tabular-nums}
+.table th{position:sticky;top:0;background:#17121d;z-index:1}
+.table tbody tr:hover{background:#ffffff06}
+.table td a{color:#e1b2ff}
+.btn{transition:filter .18s ease,transform .18s ease,box-shadow .18s ease}
+.btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.input,.select,.field input,.field select,.field textarea{transition:border-color .18s ease,box-shadow .18s ease}
+.modal{backdrop-filter:blur(8px)}
+.modal-box{box-shadow:0 28px 90px #000a}
+.notice{border:1px solid #bd43ff2b;border-radius:12px}
+@media(max-width:900px){
+ .side{background:#0d0b12f7;backdrop-filter:blur(12px);border-bottom:1px solid #ffffff20}
+ .nav{scrollbar-width:thin}
+ .nav button.active{box-shadow:inset 0 -2px #c64cff}
+ .main{padding-top:20px}
+}
+@media(max-width:560px){
+ .card{min-height:98px}
+ .box{padding:13px}
+ .toolbar>*{flex:1 1 auto}
+ .toolbar .input{min-width:min(100%,220px)}
+ .modal-box{padding:18px}
+}
