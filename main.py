@@ -518,15 +518,56 @@ async def create_application(data: PublicApplication):
 # ВХОД И АДМИН-ПАНЕЛЬ
 # ============================================================
 
-@app.get("/admin/login", response_class=HTMLResponse)
-async def login_page():
-    file = BASE / "admin_login.html"
+@app.post("/admin/login")
+async def login(
+    email: str = Form(...),
+    password: str = Form(...),
+    remember: Optional[str] = Form(None),
+):
+    connection = db()
+    user = connection.execute(
+        "SELECT * FROM users WHERE email=? AND active=1",
+        (email.strip().lower(),),
+    ).fetchone()
 
-    if not file.exists():
-        raise HTTPException(status_code=404, detail="admin_login.html не найден")
+    if not user or not password_ok(password, user["password_hash"]):
+        html = (BASE / "admin_login.html").read_text(encoding="utf-8")
+        error_html = '<div class="error">Неверный email или пароль</div>'
+        html = html.replace("{{ERROR}}", error_html)
+        html = html.replace('<div id="error"></div>', error_html)
+        connection.close()
+        return HTMLResponse(html, status_code=401)
 
-    return HTMLResponse(file.read_text(encoding="utf-8"))
+    remember_checked = remember == "1"
+    session_seconds = (
+        REMEMBER_SESSION_SECONDS
+        if remember_checked
+        else SHORT_SESSION_SECONDS
+    )
+    token = secrets.token_urlsafe(48)
 
+    with connection:
+        connection.execute(
+            "INSERT INTO sessions(token, user_id, expires_at) VALUES(?,?,?)",
+            (token, user["id"], now() + session_seconds),
+        )
+
+    connection.close()
+
+    response = RedirectResponse("/admin", status_code=303)
+    cookie_options = {
+        "key": "bratica_session",
+        "value": token,
+        "httponly": True,
+        "secure": COOKIE_SECURE,
+        "samesite": "lax",
+    }
+
+    if remember_checked:
+        cookie_options["max_age"] = session_seconds
+
+    response.set_cookie(**cookie_options)
+    return response
 
 @app.post("/admin/login")
 async def login(
