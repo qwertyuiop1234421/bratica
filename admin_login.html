@@ -1,45 +1,28 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#09070d">
-  <title>Вход — BRATICA CRM</title>
-  <style>
-    :root{--bg:#09070d;--panel:#151019;--line:#ffffff1c;--text:#faf7fc;--muted:#b9afc0;--purple:#b536ff;--purple2:#8e18e0;--danger:#ff9eae}
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 50% 0,#46105f55,transparent 45%),var(--bg);color:var(--text);font-family:Arial,sans-serif}
-    .box{width:min(430px,100%);background:linear-gradient(145deg,#1a1220,#110d15);border:1px solid #ffffff22;border-radius:24px;padding:30px;box-shadow:0 24px 90px #0009}
-    .mark{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.14em;font-size:22px}
-    .mark i{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--purple);border-radius:50%;font-style:normal;color:var(--purple);font-size:25px}
-    .mark span{display:block;color:var(--purple);font-size:10px;letter-spacing:.3em;margin-top:4px}
-    .muted{color:var(--muted);font-size:13px;line-height:1.6;margin:20px 0}
-    .field{display:grid;gap:7px;margin:16px 0}
-    .field label{font-size:12px;color:#d8cce0}
-    .field input{width:100%;padding:14px;border-radius:12px;border:1px solid #ffffff25;background:#0d0a10;color:#fff;outline:none}
-    .field input:focus{border-color:#c15aff;box-shadow:0 0 0 3px #b536ff20}
-    .btn{width:100%;padding:14px;border:0;border-radius:999px;background:linear-gradient(110deg,var(--purple2),#c242ff);color:#fff;font-weight:800;cursor:pointer;box-shadow:0 12px 30px #9a1bfa35}
-    .error{background:#7d213744;color:var(--danger);border:1px solid #ff737355;border-radius:10px;padding:11px;font-size:12px;margin:12px 0}
-    .hint{color:#887c90;font-size:10px;margin-top:16px;text-align:center}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#09070d">
+<title>Вход — BRATICA CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#09070d;--surface:#151019;--line:#ffffff1c;--text:#faf7fc;--muted:#b9afc0;--purple:#bd43ff;--purple2:#8519d6;--danger:#ff9eae}*{box-sizing:border-box}body{margin:0;min-height:100svh;display:grid;place-items:center;padding:22px;background:radial-gradient(ellipse at 50% 4%,#67228748,transparent 48%),linear-gradient(145deg,#09070d,#0e0a13);color:var(--text);font-family:Manrope,Arial,sans-serif}.login-card{width:min(440px,100%);padding:clamp(24px,6vw,36px);background:linear-gradient(145deg,#1a1420f5,#100d15f5);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 100px #0009,0 0 70px #a52be512}.brand{display:flex;align-items:center;gap:13px;font-weight:800;letter-spacing:.13em;font-size:21px}.brand-mark{display:grid;place-items:center;width:46px;height:46px;border:1px solid var(--purple);border-radius:50%;color:var(--purple);font:600 25px Oswald;box-shadow:0 0 25px #b536ff24}.brand small{display:block;margin-top:4px;color:var(--purple);font-size:9px;letter-spacing:.28em}.intro{margin:21px 0;color:var(--muted);font-size:13px;line-height:1.7}.field{display:grid;gap:7px;margin:16px 0}.field label{font-size:11px;color:#ded4e4}.field input{width:100%;min-height:47px;padding:13px 14px;border:1px solid #ffffff25;border-radius:11px;background:#0c0a0f;color:#fff;outline:none;font:inherit}.field input:focus{border-color:#c15aff;box-shadow:0 0 0 4px #b536ff1e}.remember{display:flex;align-items:center;gap:9px;margin:6px 0 19px;color:#c9bdcf;font-size:11px;cursor:pointer}.remember input{width:16px;height:16px;accent-color:var(--purple)}.submit{width:100%;min-height:48px;border:0;border-radius:999px;background:linear-gradient(110deg,var(--purple2),#c13cff);color:#fff;font-weight:800;cursor:pointer;box-shadow:0 12px 32px #9a1bfa35;transition:transform .18s,filter .18s}.submit:hover{transform:translateY(-2px);filter:brightness(1.08)}.error{margin:12px 0;padding:11px 12px;border:1px solid #ff737355;border-radius:10px;background:#7d213744;color:var(--danger);font-size:12px;line-height:1.5}.hint{margin-top:17px;text-align:center;color:#887c90;font-size:10px}
+</style>
 </head>
 <body>
-  <main class="box">
-    <div class="mark"><i>B</i><div>BRATICA<span>CRM · FIGHT CLUB</span></div></div>
-    <p class="muted">Закрытая панель управления клубом. Войдите под учётной записью сотрудника.</p>
-    {{ERROR}}
-    <form method="post" action="/admin/login">
-      <div class="field">
-        <label for="email">Email</label>
-        <input id="email" name="email" type="email" required autocomplete="username">
-      </div>
-      <div class="field">
-        <label for="password">Пароль</label>
-        <input id="password" name="password" type="password" required autocomplete="current-password">
-      </div>
-      <button class="btn" type="submit">Войти в панель ↗</button>
-    </form>
-    <div class="hint">Доступ только для сотрудников клуба</div>
-  </main>
+<main class="login-card">
+  <div class="brand"><span class="brand-mark">B</span><span>BRATICA<small>CRM · FIGHT CLUB</small></span></div>
+  <p class="intro">Закрытая панель управления клубом. Войдите под своей учётной записью сотрудника.</p>
+  {{ERROR}}
+  <form method="post" action="/admin/login">
+    <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required autocomplete="username" autofocus></div>
+    <div class="field"><label for="password">Пароль</label><input id="password" name="password" type="password" required autocomplete="current-password"></div>
+    <label class="remember"><input type="checkbox" name="remember" value="1"> Запомнить меня на этом устройстве</label>
+    <button class="submit" type="submit">Войти в панель <span aria-hidden="true">↗</span></button>
+  </form>
+  <div class="hint">Не включайте запоминание на общедоступном устройстве</div>
+</main>
 </body>
 </html>
