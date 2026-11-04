@@ -135,16 +135,58 @@ async def login_page():
     if not f.exists(): raise HTTPException(404,"admin_login.html не найден")
     return HTMLResponse(f.read_text(encoding="utf-8").replace("{{ERROR}}", ""))
 @app.post("/admin/login")
-async def login(email:str=Form(...),password:str=Form(...),remember:Optional[str]=Form(None)):
-    with engine.connect() as conn: user=fetch_one(conn,"SELECT * FROM users WHERE email=:email AND active=TRUE",{"email":email.strip().lower()})
-    if not user or not password_ok(password,user["password_hash"]):
-        html=(BASE/"admin_login.html").read_text(encoding="utf-8").replace("{{ERROR}}",'<div class="error">Неверный email или пароль</div>')
-        return HTMLResponse(html,status_code=401)
-    seconds=REMEMBER_SESSION_SECONDS if remember=="1" else SHORT_SESSION_SECONDS; token=secrets.token_urlsafe(48)
-    with engine.begin() as conn: conn.execute(text("INSERT INTO sessions(token,user_id,expires_at) VALUES(:token,:uid,:exp)"),{"token":token,"uid":user["id"],"exp":now()+seconds})
-    response=RedirectResponse("/admin",status_code=303)
-    response.set_cookie("bratica_session",token,httponly=True,secure=COOKIE_SECURE,samesite="lax",max_age=seconds if remember=="1" else None)
+async def login(
+    email: str = Form(...),
+    password: str = Form(...),
+    remember: Optional[str] = Form(None),
+):
+    with engine.connect() as conn:
+        user = fetch_one(
+            conn,
+            "SELECT * FROM users WHERE email=:email AND active=TRUE",
+            {"email": email.strip().lower()},
+        )
+
+    if not user or not password_ok(password, user["password_hash"]):
+        html = (BASE / "admin_login.html").read_text(encoding="utf-8")
+        html = html.replace(
+            "{{ERROR}}",
+            '<div class="error">Неверный email или пароль</div>',
+        )
+        return HTMLResponse(html, status_code=401)
+
+    remember_checked = remember == "1"
+    session_seconds = (
+        REMEMBER_SESSION_SECONDS
+        if remember_checked
+        else SHORT_SESSION_SECONDS
+    )
+    token = secrets.token_urlsafe(48)
+
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "INSERT INTO sessions(token, user_id, expires_at) "
+                "VALUES(:token, :user_id, :expires_at)"
+            ),
+            {
+                "token": token,
+                "user_id": user["id"],
+                "expires_at": now() + session_seconds,
+            },
+        )
+
+    response = RedirectResponse("/admin", status_code=303)
+    response.set_cookie(
+        key="bratica_session",
+        value=token,
+        httponly=True,
+        secure=COOKIE_SECURE,
+        samesite="lax",
+        max_age=session_seconds if remember_checked else None,
+    )
     return response
+
 @app.post("/admin/logout")
 async def logout(request:Request):
     token=request.cookies.get("bratica_session")
