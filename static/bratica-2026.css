@@ -16,3 +16,30 @@ html{scroll-behavior:smooth;scroll-padding-top:86px}body{background:var(--bg);co
 @media(max-width:900px){.theme-toggle{padding:8px 10px}.nav{gap:8px}}
 @media(max-width:650px){body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}.top{height:62px}.theme-toggle{position:absolute;right:60px;top:9px;padding:7px 9px;font-size:0;gap:0}.theme-toggle .theme-track{width:31px}.hero{min-height:min(720px,calc(100svh - 62px))}.hero:before{background-image:linear-gradient(0deg,#09070df0 0%,#09070d99 48%,#09070d55 100%),url('/static/images/gym-dark.jpg');background-position:58% center}.trainer{height:320px}.trainer:nth-child(4){height:350px}.mobile-cta{bottom:calc(9px + env(safe-area-inset-bottom))}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}.reveal-ready [data-reveal]{opacity:1;transform:none}}
+.brand i {
+  position:relative;
+  display:grid;
+  place-items:center;
+  width:44px;
+  height:44px;
+  border:0;
+  border-radius:14px;
+  background:linear-gradient(135deg,#d875ff,#7115b5);
+  color:#fff;
+  box-shadow:0 0 28px #bd43ff66;
+  transform:rotate(-8deg);
+}
+
+.brand i::before {
+  content:"B";
+  font:700 25px Oswald;
+  transform:rotate(8deg);
+}
+
+.brand i::after {
+  content:"";
+  position:absolute;
+  inset:-5px;
+  border:1px solid #bd43ff66;
+  border-radius:17px;
+}
