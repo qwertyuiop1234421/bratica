@@ -109,7 +109,12 @@ class PublicApplication(BaseModel):
     age:Optional[str]=Field("",max_length=10); preferred_time:Optional[str]=Field("",max_length=80); experience:Optional[str]=Field("",max_length=80); comment:Optional[str]=Field("",max_length=1000); website:Optional[str]=Field("",max_length=200)
 class ClientIn(BaseModel):
     name:str=Field(min_length=2,max_length=100); phone:str=Field(min_length=6,max_length=30); email:str=""; birth_date:str=""; age:str=""; note:str=""; status:str="active"
-class ApplicationPatch(BaseModel): status:Optional[str]=None; admin_note:Optional[str]=None
+class ApplicationPatch(BaseModel):
+    status: Optional[str] = None
+    admin_note: Optional[str] = None
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    direction: Optional[str] = None
 class TrainerIn(BaseModel): name:str=Field(min_length=2,max_length=100); phone:str=""; direction:str=""; note:str=""
 class SubscriptionIn(BaseModel):
     client_id:int; type_id:Optional[int]=None; name:str=Field(min_length=2,max_length=120); price:float=Field(default=0,ge=0); lessons_total:Optional[int]=Field(default=None,ge=0); lessons_left:Optional[int]=Field(default=None,ge=0); starts_at:str; ends_at:str; note:str=""
@@ -222,17 +227,56 @@ async def applications(status:str="all",q:str="",user=Depends(get_user)):
     where=" WHERE "+" AND ".join(conditions) if conditions else ""
     with engine.connect() as c: return fetch_all(c,"SELECT * FROM applications"+where+" ORDER BY created_at DESC",p)
 @app.patch("/api/admin/applications/{ident}")
-async def application_patch(ident:int,data:ApplicationPatch,user=Depends(get_user)):
-    if data.status is not None and data.status not in STATUSES: raise HTTPException(422,"Недопустимый статус")
-    if data.status is None and data.admin_note is None: raise HTTPException(400,"Нет изменений")
-    sets=[]; p={"id":ident,"updated":now()}
-    if data.status is not None: sets.append("status=:status"); p["status"]=data.status
-    if data.admin_note is not None: sets.append("admin_note=:note"); p["note"]=data.admin_note
-    sets.append("updated_at=:updated")
-    with engine.begin() as c:
-        result=c.execute(text("UPDATE applications SET "+",".join(sets)+" WHERE id=:id"),p)
-        if not result.rowcount: raise HTTPException(404,"Заявка не найдена")
-    audit(user,"update","application",ident); return {"ok":True}
+async def application_patch(
+    ident: int,
+    data: ApplicationPatch,
+    user=Depends(get_user),
+):
+    if data.status is not None and data.status not in STATUSES:
+        raise HTTPException(status_code=422, detail="Недопустимый статус")
+    fields = {
+        "name": data.name,
+        "phone": data.phone,
+        "direction": data.direction,
+        "status": data.status,
+        "admin_note": data.admin_note,
+    }
+
+    sets = []
+    params = {"id": ident, "updated": now()}
+
+    for field_name, value in fields.items():
+        if value is not None:
+            if field_name in {"name", "direction"} and not value.strip():
+                raise HTTPException(status_code=422, detail=f"Поле {field_name} не может быть пустым")
+            if field_name == "phone" and sum(ch.isdigit() for ch in value) < 10:
+                raise HTTPException(status_code=422, detail="Некорректный телефон")
+
+            # Имена колонок заданы только в коде, значения передаются параметрами.
+            sets.append(f"{field_name} = :{field_name}")
+            params[field_name] = value.strip() if isinstance(value, str) else value
+
+    if not sets:
+        raise HTTPException(status_code=400, detail="Нет данных для обновления")
+
+    sets.append("updated_at = :updated")
+
+    with engine.begin() as conn:
+        result = conn.execute(
+            text(
+                "UPDATE applications SET "
+                + ", ".join(sets)
+                + " WHERE id = :id"
+            ),
+            params,
+        )
+
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Заявка не найдена")
+
+    audit(user, "update", "application", ident)
+    return {"ok": True, "id": ident}
+
 @app.post("/api/admin/applications/{ident}/convert")
 async def convert_application(ident:int,user=Depends(get_user)):
     with engine.begin() as c:
