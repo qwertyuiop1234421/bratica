@@ -52,7 +52,7 @@ function fmtDate(value){if(!value)return '—';const d=new Date(value);return Nu
 function badge(status){const map={active:['Активен','green'],frozen:['Заморожен','amber'],archived:['Архив','red'],new:['Новая','amber'],contacted:['Связались',''],booked:['Записан','green'],completed:['Завершена',''],cancelled:['Отменена','red'],present:['Пришёл','green'],absent:['Не пришёл','red'],trial:['Пробное','amber']};const [label,cls]=map[status]||[status||'—',''];return `<span class="badge ${cls}">${esc(label)}</span>`}
 async function loadMe(){const u=await api('/api/admin/me');$('#userName').textContent=u.name||u.email;$('#userRole').textContent=({owner:'Владелец',admin:'Администратор',trainer:'Тренер'})[u.role]||u.role;$('#avatar').textContent=(u.name||u.email||'B').trim().charAt(0).toUpperCase()}
 async function loadDashboard(){const d=await api('/api/admin/dashboard');$('#newApps').textContent=d.applications_new??0;$('#activeClients').textContent=d.clients_active??0;$('#activeSubs').textContent=d.subscriptions_active??0;$('#todayVisits').textContent=d.visits_today??0;$('#expiring').textContent=d.expiring??0}
-async function loadApps(){const status=$('#appStatus').value,q=encodeURIComponent($('#appSearch').value.trim());const rows=await api(`/api/admin/applications?status=${encodeURIComponent(status)}&q=${q}`);$('#appsTable').innerHTML=rows.length?rows.map(a=>`<tr><td>${fmtDate(Number(a.created_at)*1000)}</td><td><b>${esc(a.name)}</b><div style="color:var(--muted);font-size:9px">${esc(a.age||'Возраст не указан')} · ${esc(a.experience||'')}</div></td><td><a style="color:#ddb2ff" href="tel:${esc(a.phone)}">${esc(a.phone)}</a></td><td>${esc(a.direction)}</td><td>${esc(a.preferred_time||'—')}</td><td><select class="control" aria-label="Статус заявки" onchange="patchApplication(${a.id},this.value)"><option value="new" ${a.status==='new'?'selected':''}>Новая</option><option value="contacted" ${a.status==='contacted'?'selected':''}>Связались</option><option value="booked" ${a.status==='booked'?'selected':''}>Записан</option><option value="completed" ${a.status==='completed'?'selected':''}>Завершена</option><option value="cancelled" ${a.status==='cancelled'?'selected':''}>Отменена</option></select></td><td><button class="btn small" onclick="convertApplication(${a.id})">Создать клиента</button></td></tr>`).join(''):'<tr><td colspan="7" class="empty">Пока нет заявок. Новые обращения с сайта появятся здесь.</td></tr>'}
+async function loadApps(){const status=$('#appStatus').value,q=encodeURIComponent($('#appSearch').value.trim());const rows=await api(`/api/admin/applications?status=${encodeURIComponent(status)}&q=${q}`);$('#appsTable').innerHTML=rows.length?rows.map(a=>`<tr><td>${fmtDate(Number(a.created_at)*1000)}</td><td><b>${esc(a.name)}</b><div style="color:var(--muted);font-size:9px">${esc(a.age||'Возраст не указан')} · ${esc(a.experience||'')}</div></td><td><a style="color:#ddb2ff" href="tel:${esc(a.phone)}">${esc(a.phone)}</a></td><td>${esc(a.direction)}</td><td>${esc(a.preferred_time||'—')}</td><td><select class="control" aria-label="Статус заявки" onchange="patchApplication(${a.id},this.value)"><option value="new" ${a.status==='new'?'selected':''}>Новая</option><option value="contacted" ${a.status==='contacted'?'selected':''}>Связались</option><option value="booked" ${a.status==='booked'?'selected':''}>Записан</option><option value="completed" ${a.status==='completed'?'selected':''}>Завершена</option><option value="cancelled" ${a.status==='cancelled'?'selected':''}>Отменена</option></select></td><td><button class="btn secondary small" onclick="editApplication(${a.id})">Редактировать</button><button class="btn small" onclick="convertApplication(${a.id})">Создать клиента</button></td></tr>`).join(''):'<tr><td colspan="7" class="empty">Пока нет заявок. Новые обращения с сайта появятся здесь.</td></tr>'}
 async function patchApplication(id,status){try{await api(`/api/admin/applications/${id}`,{method:'PATCH',body:JSON.stringify({status})});toast('Статус заявки обновлён')}catch(e){toast(e.message,'error')}}
 async function convertApplication(id){try{const r=await api(`/api/admin/applications/${id}/convert`,{method:'POST'});toast(`Карточка клиента создана · №${r.client_id}`);loadApps();loadDashboard()}catch(e){toast(e.message,'error')}}
 async function loadClients(){const q=encodeURIComponent($('#clientSearch').value.trim());clientsCache=await api(`/api/admin/clients?q=${q}`);$('#clientsTable').innerHTML=clientsCache.length?clientsCache.map(c=>`<tr><td><button class="btn secondary small" onclick="openClientDetail(${c.id})">${esc(c.name)}</button></td><td><a style="color:#ddb2ff" href="tel:${esc(c.phone)}">${esc(c.phone)}</a></td><td>${esc(c.subscription_name||'Нет активного')}</td><td>${c.lessons_left==null?'∞':c.lessons_left}</td><td>${badge(c.status)}</td><td><button class="btn secondary small" onclick="openSubscription(${c.id})">Абонемент</button></td></tr>`).join(''):'<tr><td colspan="6" class="empty">Клиенты не найдены. Добавь первого клиента или преобразуй заявку.</td></tr>'}
@@ -62,6 +62,67 @@ async function loadTrainings(){const rows=await api('/api/admin/trainings');$('#
 async function loadTrainers(){trainersCache=await api('/api/admin/trainers');$('#trainersTable').innerHTML=trainersCache.length?trainersCache.map(t=>`<tr><td><b>${esc(t.name)}</b></td><td>${esc(t.phone||'—')}</td><td>${esc(t.direction||'—')}</td><td>${esc(t.note||'—')}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">Тренеры пока не добавлены.</td></tr>'}
 function closeModal(){modal.classList.remove('open')}modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 function showForm(title,fields,onSubmit){$('#modalContent').innerHTML=`<div class="modal-head"><h2>${title}</h2><button class="close" type="button" onclick="closeModal()" aria-label="Закрыть">×</button></div><form id="entryForm"><div class="form-grid">${fields}</div><div class="modal-actions"><button class="btn secondary" type="button" onclick="closeModal()">Отмена</button><button class="btn" type="submit">Сохранить</button></div></form>`;modal.classList.add('open');$('#entryForm').addEventListener('submit',async e=>{e.preventDefault();const button=e.submitter;button.disabled=true;try{await onSubmit(Object.fromEntries(new FormData(e.currentTarget)));closeModal();toast('Изменения сохранены');const active=document.querySelector('.page.active')?.id;await loaders[active]?.()}catch(err){toast(err.message,'error')}finally{button.disabled=false}})}
+async function editApplication(id) {
+  try {
+    const applications = await api('/api/admin/applications');
+    const application = applications.find(item => Number(item.id) === Number(id));
+
+    if (!application) {
+      toast('Заявка не найдена', 'error');
+      return;
+    }
+
+    const statusOptions = `
+      <option value="new" ${application.status === 'new' ? 'selected' : ''}>Новая</option>
+      <option value="contacted" ${application.status === 'contacted' ? 'selected' : ''}>Связались</option>
+      <option value="booked" ${application.status === 'booked' ? 'selected' : ''}>Записан</option>
+      <option value="completed" ${application.status === 'completed' ? 'selected' : ''}>Завершена</option>
+      <option value="cancelled" ${application.status === 'cancelled' ? 'selected' : ''}>Отменена</option>
+    `;
+
+    const fields = `
+      <div class="field">
+        <label for="edit-app-name">Имя *</label>
+        <input id="edit-app-name" name="name" required maxlength="80"
+               value="${esc(application.name)}">
+      </div>
+
+      <div class="field">
+        <label for="edit-app-phone">Телефон *</label>
+        <input id="edit-app-phone" name="phone" type="tel" required maxlength="30"
+               value="${esc(application.phone)}">
+      </div>
+
+      <div class="field">
+        <label for="edit-app-direction">Направление *</label>
+        <input id="edit-app-direction" name="direction" required maxlength="80"
+               value="${esc(application.direction)}">
+      </div>
+
+      <div class="field">
+        <label for="edit-app-status">Статус</label>
+        <select id="edit-app-status" name="status">
+          ${statusOptions}
+        </select>
+      </div>
+
+      <div class="field full">
+        <label for="edit-app-note">Заметка администратора</label>
+        <textarea id="edit-app-note" name="admin_note" maxlength="1000">${esc(application.admin_note || '')}</textarea>
+      </div>
+    `;
+
+    showForm('Редактировать заявку', fields, async data => {
+      await api(`/api/admin/applications/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data)
+      });
+    });
+  } catch (error) {
+    toast(error.message || 'Не удалось открыть заявку', 'error');
+  }
+}
+
 function f(name,label,type='text',required=false,extra=''){return `<div class="field"><label for="f_${name}">${label}${required?' *':''}</label><input id="f_${name}" name="${name}" type="${type}" ${required?'required':''} ${extra}></div>`}
 function selectField(name,label,options,required=true,full=false){return `<div class="field ${full?'full':''}"><label for="f_${name}">${label}${required?' *':''}</label><select id="f_${name}" name="${name}" ${required?'required':''}>${options}</select></div>`}
 function textArea(name,label,full=true){return `<div class="field ${full?'full':''}"><label for="f_${name}">${label}</label><textarea id="f_${name}" name="${name}"></textarea></div>`}
