@@ -1,50 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-labelledby="title">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title">
   <title id="title">BRATICA Fight Club Logo</title>
   <defs>
-    <!-- Глубокий объемный градиент плашки -->
     <linearGradient id="plateGrad" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#2a1640"/>
       <stop offset="50%" stop-color="#160c24"/>
       <stop offset="100%" stop-color="#09040e"/>
     </linearGradient>
-
-    <!-- Неоново-фиолетовый объемный градиент буквы B -->
     <linearGradient id="letterGrad" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#ffb8ff"/>
-      <stop offset="25%" stop-color="#e270ff"/>
-      <stop offset="60%" stop-color="#b224ff"/>
-      <stop offset="100%" stop-color="#6700ab"/>
+      <stop offset="30%" stop-color="#d65fff"/>
+      <stop offset="70%" stop-color="#9b1aff"/>
+      <stop offset="100%" stop-color="#550094"/>
     </linearGradient>
-
-    <!-- Внутренний блик для 3D-эффекта буквы -->
     <linearGradient id="letterHighlight" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/>
-      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.0"/>
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.65"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0.0"/>
     </linearGradient>
-
-    <!-- Многослойные тени и свечения -->
-    <filter id="ultraGlow" x="-40%" y="-40%" width="180%" height="180%">
-      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#a020f0" flood-opacity="0.5"/>
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.65"/>
+    <filter id="ultraGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#a020f0" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000000" flood-opacity="0.6"/>
     </filter>
-
     <filter id="letterShadow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#260047" flood-opacity="0.9"/>
+      <feDropShadow dx="2" dy="4" stdDeviation="2" flood-color="#1e0036" flood-opacity="0.85"/>
     </filter>
   </defs>
 
   <!-- Плашка логотипа -->
   <rect x="6" y="6" width="108" height="108" rx="30" fill="var(--logo-plate, url(#plateGrad))" stroke="url(#letterGrad)" stroke-width="3.5" filter="url(#ultraGlow)"/>
-  
-  <!-- Внутренняя фаска -->
-  <rect x="10" y="10" width="100" height="100" rx="26" fill="none" stroke="#ffffff" stroke-opacity="0.15" stroke-width="1.5"/>
+  <rect x="11" y="11" width="98" height="98" rx="26" fill="none" stroke="#ffffff" stroke-opacity="0.15" stroke-width="1.5"/>
 
-  <!-- Объемная буква B (сдвинута точно по центру viewBox 120x120) -->
-  <g transform="translate(4, 0)">
-    <!-- Тень/основа буквы -->
+  <!-- Буква B точно по центру с наклоном (skewX) и 3D-объемом -->
+  <g transform="translate(60, 60) skewX(-10) translate(-50, -52)">
     <path d="M37 26h28c17 0 27 8 27 21 0 8-4 15-12 19 10 3 16 10 16 21 0 16-12 25-32 25H37V26zm21 17v17h8c6 0 9-3 9-9 0-5-3-8-9-8h-8zm0 32v18h9c7 0 10-4 10-10 0-5-3-8-10-8h-9z" fill="url(#letterGrad)" filter="url(#letterShadow)"/>
-    
-    <!-- Верхний 3D-блик на букве -->
     <path d="M37 26h28c17 0 27 8 27 21 0 8-4 15-12 19 10 3 16 10 16 21 0 16-12 25-32 25H37V26zm21 17v17h8c6 0 9-3 9-9 0-5-3-8-9-8h-8zm0 32v18h9c7 0 10-4 10-10 0-5-3-8-10-8h-9z" fill="url(#letterHighlight)" style="mix-blend-mode: overlay;"/>
   </g>
 </svg>
