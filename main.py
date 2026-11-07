@@ -99,7 +99,7 @@ def audit(user, action, entity, entity_id=None):
 def fetch_one(conn, query, params=None): return conn.execute(text(query), params or {}).mappings().first()
 def fetch_all(conn, query, params=None): return [dict(r) for r in conn.execute(text(query), params or {}).mappings().all()]
 def ensure_exists(conn, table, ident):
-    allowed={"clients","applications","trainers","subscriptions","trainings"}
+    allowed={"clients","applications","trainers","subscriptions","trainings","payments"}
     if table not in allowed: raise HTTPException(500,"Invalid table")
     if not fetch_one(conn, f"SELECT id FROM {table} WHERE id=:id", {"id":ident}): raise HTTPException(404,"Запись не найдена")
 
@@ -107,89 +107,92 @@ class PublicApplication(BaseModel):
     model_config=ConfigDict(str_strip_whitespace=True,extra="ignore")
     name:str=Field(min_length=2,max_length=80); phone:str=Field(min_length=6,max_length=30); direction:str=Field(min_length=2,max_length=80)
     age:Optional[str]=Field("",max_length=10); preferred_time:Optional[str]=Field("",max_length=80); experience:Optional[str]=Field("",max_length=80); comment:Optional[str]=Field("",max_length=1000); website:Optional[str]=Field("",max_length=200)
+
 class ClientIn(BaseModel):
     name:str=Field(min_length=2,max_length=100); phone:str=Field(min_length=6,max_length=30); email:str=""; birth_date:str=""; age:str=""; note:str=""; status:str="active"
+
 class ApplicationPatch(BaseModel):
     status: Optional[str] = None
     admin_note: Optional[str] = None
     name: Optional[str] = None
     phone: Optional[str] = None
     direction: Optional[str] = None
-class TrainerIn(BaseModel): name:str=Field(min_length=2,max_length=100); phone:str=""; direction:str=""; note:str=""
+    age: Optional[str] = None
+    preferred_time: Optional[str] = None
+    experience: Optional[str] = None
+    comment: Optional[str] = None
+
+class TrainerIn(BaseModel):
+    name:str=Field(min_length=2,max_length=100); phone:str=""; direction:str=""; note:str=""
+
 class SubscriptionIn(BaseModel):
     client_id:int; type_id:Optional[int]=None; name:str=Field(min_length=2,max_length=120); price:float=Field(default=0,ge=0); lessons_total:Optional[int]=Field(default=None,ge=0); lessons_left:Optional[int]=Field(default=None,ge=0); starts_at:str; ends_at:str; note:str=""
-class PaymentIn(BaseModel): client_id:int; subscription_id:Optional[int]=None; amount:float=Field(gt=0); payment_date:str; method:str="cash"; note:str=""
+
+class SubscriptionPatch(BaseModel):
+    name: Optional[str] = None
+    price: Optional[float] = Field(default=None, ge=0)
+    lessons_total: Optional[int] = Field(default=None, ge=0)
+    lessons_left: Optional[int] = Field(default=None, ge=0)
+    starts_at: Optional[str] = None
+    ends_at: Optional[str] = None
+    status: Optional[str] = None
+    note: Optional[str] = None
+
+class PaymentIn(BaseModel):
+    client_id:int; subscription_id:Optional[int]=None; amount:float=Field(gt=0); payment_date:str; method:str="cash"; note:str=""
+
+class PaymentPatch(BaseModel):
+    amount: Optional[float] = Field(default=None, gt=0)
+    payment_date: Optional[str] = None
+    method: Optional[str] = None
+    note: Optional[str] = None
+
 class TrainingIn(BaseModel):
     title:str=Field(min_length=2,max_length=120); direction:str=""; trainer_id:Optional[int]=None; training_date:str; start_time:str; end_time:str; room:str=""; capacity:int=Field(default=0,ge=0); note:str=""
-class AttendanceIn(BaseModel): training_id:int; client_id:int; status:str="present"; note:str=""
+
+class TrainingPatch(BaseModel):
+    title: Optional[str] = Field(default=None, min_length=2, max_length=120)
+    direction: Optional[str] = None
+    trainer_id: Optional[int] = None
+    training_date: Optional[str] = None
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    room: Optional[str] = None
+    capacity: Optional[int] = Field(default=None, ge=0)
+    note: Optional[str] = None
+
+class AttendanceIn(BaseModel):
+    training_id:int; client_id:int; status:str="present"; note:str=""
 
 @app.get("/", response_class=HTMLResponse)
 async def home():
     f=BASE/"index.html"
     if not f.exists(): raise HTTPException(404,"index.html не найден")
     return HTMLResponse(f.read_text(encoding="utf-8"))
+
 @app.get("/health")
 async def health():
     try:
         with engine.connect() as conn: conn.execute(text("SELECT 1"))
         return {"ok":True,"service":"bratica","database":"postgresql"}
     except Exception as exc: raise HTTPException(503,"Database unavailable") from exc
+
 @app.get("/admin/login",response_class=HTMLResponse)
 async def login_page():
     f=BASE/"admin_login.html"
     if not f.exists(): raise HTTPException(404,"admin_login.html не найден")
     return HTMLResponse(f.read_text(encoding="utf-8").replace("{{ERROR}}", ""))
+
 @app.post("/admin/login")
-async def login(
-    email: str = Form(...),
-    password: str = Form(...),
-    remember: Optional[str] = Form(None),
-):
-    with engine.connect() as conn:
-        user = fetch_one(
-            conn,
-            "SELECT * FROM users WHERE email=:email AND active=TRUE",
-            {"email": email.strip().lower()},
-        )
-
-    if not user or not password_ok(password, user["password_hash"]):
-        html = (BASE / "admin_login.html").read_text(encoding="utf-8")
-        html = html.replace(
-            "{{ERROR}}",
-            '<div class="error">Неверный email или пароль</div>',
-        )
-        return HTMLResponse(html, status_code=401)
-
-    remember_checked = remember == "1"
-    session_seconds = (
-        REMEMBER_SESSION_SECONDS
-        if remember_checked
-        else SHORT_SESSION_SECONDS
-    )
-    token = secrets.token_urlsafe(48)
-
-    with engine.begin() as conn:
-        conn.execute(
-            text(
-                "INSERT INTO sessions(token, user_id, expires_at) "
-                "VALUES(:token, :user_id, :expires_at)"
-            ),
-            {
-                "token": token,
-                "user_id": user["id"],
-                "expires_at": now() + session_seconds,
-            },
-        )
-
-    response = RedirectResponse("/admin", status_code=303)
-    response.set_cookie(
-        key="bratica_session",
-        value=token,
-        httponly=True,
-        secure=COOKIE_SECURE,
-        samesite="lax",
-        max_age=session_seconds if remember_checked else None,
-    )
+async def login(email:str=Form(...),password:str=Form(...),remember:Optional[str]=Form(None)):
+    with engine.connect() as conn: user=fetch_one(conn,"SELECT * FROM users WHERE email=:email AND active=TRUE",{"email":email.strip().lower()})
+    if not user or not password_ok(password,user["password_hash"]):
+        html=(BASE/"admin_login.html").read_text(encoding="utf-8").replace("{{ERROR}}",'<div class="error">Неверный email или пароль</div>')
+        return HTMLResponse(html,status_code=401)
+    seconds=REMEMBER_SESSION_SECONDS if remember=="1" else SHORT_SESSION_SECONDS; token=secrets.token_urlsafe(48)
+    with engine.begin() as conn: conn.execute(text("INSERT INTO sessions(token,user_id,expires_at) VALUES(:token,:uid,:exp)"),{"token":token,"uid":user["id"],"exp":now()+seconds})
+    response=RedirectResponse("/admin",status_code=303)
+    response.set_cookie("bratica_session",token,httponly=True,secure=COOKIE_SECURE,samesite="lax",max_age=seconds if remember=="1" else None)
     return response
 
 @app.post("/admin/logout")
@@ -198,6 +201,7 @@ async def logout(request:Request):
     if token:
         with engine.begin() as conn: conn.execute(text("DELETE FROM sessions WHERE token=:token"),{"token":token})
     response=RedirectResponse("/admin/login",status_code=303); response.delete_cookie("bratica_session"); return response
+
 @app.get("/admin",response_class=HTMLResponse)
 async def admin_page(request:Request):
     try: get_user(request)
@@ -205,6 +209,7 @@ async def admin_page(request:Request):
     f=BASE/"admin.html"
     if not f.exists(): raise HTTPException(404,"admin.html не найден")
     return HTMLResponse(f.read_text(encoding="utf-8"))
+
 @app.post("/api/applications",status_code=201)
 async def create_application(data:PublicApplication):
     if data.website: return {"ok":True,"id":0}
@@ -212,12 +217,15 @@ async def create_application(data:PublicApplication):
     with engine.begin() as conn:
         row=conn.execute(text("""INSERT INTO applications(name,phone,direction,age,preferred_time,experience,comment,created_at,updated_at) VALUES(:name,:phone,:direction,:age,:time,:experience,:comment,:created,:updated) RETURNING id"""),{"name":data.name,"phone":data.phone,"direction":data.direction,"age":data.age or "","time":data.preferred_time or "","experience":data.experience or "","comment":data.comment or "","created":now(),"updated":now()}).first()
     return {"ok":True,"id":row.id,"status":"new"}
+
 @app.get("/api/admin/me")
 async def me(user=Depends(get_user)): return {k:user[k] for k in ("id","email","name","role")}
+
 @app.get("/api/admin/dashboard")
 async def dashboard(user=Depends(get_user)):
     with engine.connect() as c:
         return {"applications_new":c.execute(text("SELECT count(*) FROM applications WHERE status='new'")).scalar(),"clients_active":c.execute(text("SELECT count(*) FROM clients WHERE status='active'")).scalar(),"subscriptions_active":c.execute(text("SELECT count(*) FROM subscriptions WHERE status='active' AND ends_at>=CURRENT_DATE")).scalar(),"visits_today":c.execute(text("SELECT count(*) FROM attendance a JOIN trainings t ON t.id=a.training_id WHERE a.status='present' AND t.training_date=CURRENT_DATE")).scalar(),"expiring":c.execute(text("SELECT count(*) FROM subscriptions WHERE status='active' AND ends_at BETWEEN CURRENT_DATE AND CURRENT_DATE+7")).scalar()}
+
 @app.get("/api/admin/applications")
 async def applications(status:str="all",q:str="",user=Depends(get_user)):
     if status!="all" and status not in STATUSES: raise HTTPException(400,"Недопустимый статус")
@@ -226,54 +234,26 @@ async def applications(status:str="all",q:str="",user=Depends(get_user)):
     if q.strip(): conditions.append("(name ILIKE :q OR phone ILIKE :q OR direction ILIKE :q)"); p["q"]="%"+q.strip()+"%"
     where=" WHERE "+" AND ".join(conditions) if conditions else ""
     with engine.connect() as c: return fetch_all(c,"SELECT * FROM applications"+where+" ORDER BY created_at DESC",p)
+
 @app.patch("/api/admin/applications/{ident}")
-async def application_patch(
-    ident: int,
-    data: ApplicationPatch,
-    user=Depends(get_user),
-):
+async def application_patch(ident: int, data: ApplicationPatch, user=Depends(get_user)):
     if data.status is not None and data.status not in STATUSES:
         raise HTTPException(status_code=422, detail="Недопустимый статус")
-    fields = {
-        "name": data.name,
-        "phone": data.phone,
-        "direction": data.direction,
-        "status": data.status,
-        "admin_note": data.admin_note,
-    }
-
-    sets = []
-    params = {"id": ident, "updated": now()}
-
-    for field_name, value in fields.items():
-        if value is not None:
-            if field_name in {"name", "direction"} and not value.strip():
-                raise HTTPException(status_code=422, detail=f"Поле {field_name} не может быть пустым")
-            if field_name == "phone" and sum(ch.isdigit() for ch in value) < 10:
+    fields = {"name": data.name, "phone": data.phone, "direction": data.direction, "age": data.age, "preferred_time": data.preferred_time, "experience": data.experience, "comment": data.comment, "status": data.status, "admin_note": data.admin_note}
+    sets = []; params = {"id": ident, "updated": now()}
+    for k, v in fields.items():
+        if v is not None:
+            if k in {"name", "direction"} and not str(v).strip():
+                raise HTTPException(status_code=422, detail=f"Поле {k} не может быть пустым")
+            if k == "phone" and sum(ch.isdigit() for ch in str(v)) < 10:
                 raise HTTPException(status_code=422, detail="Некорректный телефон")
-
-            # Имена колонок заданы только в коде, значения передаются параметрами.
-            sets.append(f"{field_name} = :{field_name}")
-            params[field_name] = value.strip() if isinstance(value, str) else value
-
-    if not sets:
-        raise HTTPException(status_code=400, detail="Нет данных для обновления")
-
+            sets.append(f"{k} = :{k}")
+            params[k] = v.strip() if isinstance(v, str) else v
+    if not sets: raise HTTPException(status_code=400, detail="Нет данных для обновления")
     sets.append("updated_at = :updated")
-
     with engine.begin() as conn:
-        result = conn.execute(
-            text(
-                "UPDATE applications SET "
-                + ", ".join(sets)
-                + " WHERE id = :id"
-            ),
-            params,
-        )
-
-        if result.rowcount == 0:
-            raise HTTPException(status_code=404, detail="Заявка не найдена")
-
+        res = conn.execute(text("UPDATE applications SET " + ", ".join(sets) + " WHERE id = :id"), params)
+        if res.rowcount == 0: raise HTTPException(status_code=404, detail="Заявка не найдена")
     audit(user, "update", "application", ident)
     return {"ok": True, "id": ident}
 
@@ -287,6 +267,7 @@ async def convert_application(ident:int,user=Depends(get_user)):
         row=c.execute(text("INSERT INTO clients(name,phone,age,note,status,source_application_id,created_at,updated_at) VALUES(:name,:phone,:age,:note,'active',:source,:created,:updated) RETURNING id"),{"name":a["name"],"phone":a["phone"],"age":a["age"],"note":a["comment"],"source":ident,"created":now(),"updated":now()}).first()
         c.execute(text("UPDATE applications SET status='completed',updated_at=:t WHERE id=:id"),{"t":now(),"id":ident})
     audit(user,"convert","application",ident); return {"ok":True,"client_id":row.id}
+
 @app.get("/api/admin/clients")
 async def clients(q:str="",user=Depends(get_user)):
     sql="""SELECT c.*,(SELECT name FROM subscriptions s WHERE s.client_id=c.id AND s.status='active' ORDER BY s.id DESC LIMIT 1) subscription_name,(SELECT lessons_left FROM subscriptions s WHERE s.client_id=c.id AND s.status='active' ORDER BY s.id DESC LIMIT 1) lessons_left FROM clients c"""
@@ -294,12 +275,14 @@ async def clients(q:str="",user=Depends(get_user)):
     if q.strip(): sql+=" WHERE c.name ILIKE :q OR c.phone ILIKE :q"; params["q"]="%"+q.strip()+"%"
     sql+=" ORDER BY c.created_at DESC"
     with engine.connect() as c: return fetch_all(c,sql,params)
+
 @app.get("/api/admin/clients/{ident}")
 async def client_detail(ident:int,user=Depends(get_user)):
     with engine.connect() as c:
         client=fetch_one(c,"SELECT * FROM clients WHERE id=:id",{"id":ident})
         if not client: raise HTTPException(404,"Клиент не найден")
         return {"client":dict(client),"subscriptions":fetch_all(c,"SELECT * FROM subscriptions WHERE client_id=:id ORDER BY id DESC",{"id":ident}),"payments":fetch_all(c,"SELECT * FROM payments WHERE client_id=:id ORDER BY id DESC",{"id":ident}),"attendance":fetch_all(c,"SELECT a.*,t.title,t.training_date,t.start_time FROM attendance a JOIN trainings t ON t.id=a.training_id WHERE a.client_id=:id ORDER BY t.training_date DESC,t.start_time DESC",{"id":ident})}
+
 @app.post("/api/admin/clients")
 async def client_create(data:ClientIn,user=Depends(get_user)):
     if data.status not in {"active","frozen","archived"}: raise HTTPException(422,"Недопустимый статус клиента")
@@ -308,28 +291,44 @@ async def client_create(data:ClientIn,user=Depends(get_user)):
             row=c.execute(text("INSERT INTO clients(name,phone,email,birth_date,age,note,status,created_at,updated_at) VALUES(:name,:phone,:email,:birth,:age,:note,:status,:created,:updated) RETURNING id"),{"name":data.name,"phone":data.phone,"email":data.email,"birth":data.birth_date,"age":data.age,"note":data.note,"status":data.status,"created":now(),"updated":now()}).first()
     except IntegrityError: raise HTTPException(409,"Не удалось создать клиента")
     audit(user,"create","client",row.id); return {"ok":True,"id":row.id}
+
 @app.patch("/api/admin/clients/{ident}")
 async def client_update(ident:int,data:ClientIn,user=Depends(get_user)):
+    if data.status not in {"active","frozen","archived"}: raise HTTPException(422,"Недопустимый статус клиента")
     with engine.begin() as c:
         result=c.execute(text("UPDATE clients SET name=:name,phone=:phone,email=:email,birth_date=:birth,age=:age,note=:note,status=:status,updated_at=:updated WHERE id=:id"),{"name":data.name,"phone":data.phone,"email":data.email,"birth":data.birth_date,"age":data.age,"note":data.note,"status":data.status,"updated":now(),"id":ident})
         if not result.rowcount: raise HTTPException(404,"Клиент не найден")
     audit(user,"update","client",ident); return {"ok":True}
+
 @app.get("/api/admin/directions")
 async def directions(user=Depends(get_user)):
     with engine.connect() as c: return fetch_all(c,"SELECT * FROM directions WHERE active=TRUE ORDER BY id")
+
 @app.get("/api/public/directions")
 async def public_directions():
     with engine.connect() as c: return fetch_all(c,"SELECT id,name FROM directions WHERE active=TRUE ORDER BY id")
+
 @app.get("/api/admin/trainers")
 async def trainers(user=Depends(get_user)):
     with engine.connect() as c: return fetch_all(c,"SELECT * FROM trainers WHERE active=TRUE ORDER BY name")
+
 @app.post("/api/admin/trainers")
 async def trainer_create(data:TrainerIn,user=Depends(roles("owner","admin"))):
     with engine.begin() as c: row=c.execute(text("INSERT INTO trainers(name,phone,direction,note) VALUES(:name,:phone,:direction,:note) RETURNING id"),data.model_dump()).first()
     audit(user,"create","trainer",row.id); return {"ok":True,"id":row.id}
+
+@app.patch("/api/admin/trainers/{ident}")
+async def trainer_update(ident: int, data: TrainerIn, user=Depends(roles("owner","admin"))):
+    with engine.begin() as c:
+        res = c.execute(text("UPDATE trainers SET name=:name, phone=:phone, direction=:direction, note=:note WHERE id=:id"), {"id": ident, **data.model_dump()})
+        if res.rowcount == 0: raise HTTPException(404, "Тренер не найден")
+    audit(user, "update", "trainer", ident)
+    return {"ok": True}
+
 @app.get("/api/admin/subscriptions")
 async def subscriptions(user=Depends(get_user)):
     with engine.connect() as c: return fetch_all(c,"SELECT s.*,c.name client_name,c.phone FROM subscriptions s JOIN clients c ON c.id=s.client_id ORDER BY s.id DESC")
+
 @app.post("/api/admin/subscriptions")
 async def subscription_create(data:SubscriptionIn,user=Depends(get_user)):
     if data.ends_at<data.starts_at: raise HTTPException(422,"Дата окончания раньше даты начала")
@@ -339,9 +338,25 @@ async def subscription_create(data:SubscriptionIn,user=Depends(get_user)):
         p=data.model_dump(); p["lessons_left"]=left; p["created_at"]=now()
         row=c.execute(text("INSERT INTO subscriptions(client_id,type_id,name,price,lessons_total,lessons_left,starts_at,ends_at,note,created_at) VALUES(:client_id,:type_id,:name,:price,:lessons_total,:lessons_left,:starts_at,:ends_at,:note,:created_at) RETURNING id"),p).first()
     audit(user,"create","subscription",row.id); return {"ok":True,"id":row.id}
+
+@app.patch("/api/admin/subscriptions/{ident}")
+async def subscription_update(ident: int, data: SubscriptionPatch, user=Depends(get_user)):
+    with engine.begin() as c:
+        sub = fetch_one(c, "SELECT * FROM subscriptions WHERE id=:id", {"id": ident})
+        if not sub: raise HTTPException(404, "Абонемент не найден")
+        sets = []; p = {"id": ident}
+        for k, v in data.model_dump(exclude_unset=True).items():
+            sets.append(f"{k} = :{k}")
+            p[k] = v
+        if not sets: raise HTTPException(400, "Нет данных для обновления")
+        c.execute(text("UPDATE subscriptions SET " + ", ".join(sets) + " WHERE id=:id"), p)
+    audit(user, "update", "subscription", ident)
+    return {"ok": True}
+
 @app.get("/api/admin/payments")
 async def payments(user=Depends(get_user)):
     with engine.connect() as c: return fetch_all(c,"SELECT p.*,c.name client_name FROM payments p JOIN clients c ON c.id=p.client_id ORDER BY p.id DESC")
+
 @app.post("/api/admin/payments")
 async def payment_create(data:PaymentIn,user=Depends(get_user)):
     with engine.begin() as c:
@@ -352,9 +367,25 @@ async def payment_create(data:PaymentIn,user=Depends(get_user)):
         p=data.model_dump(); p["created_at"]=now()
         row=c.execute(text("INSERT INTO payments(client_id,subscription_id,amount,payment_date,method,note,created_at) VALUES(:client_id,:subscription_id,:amount,:payment_date,:method,:note,:created_at) RETURNING id"),p).first()
     audit(user,"create","payment",row.id); return {"ok":True,"id":row.id}
+
+@app.patch("/api/admin/payments/{ident}")
+async def payment_update(ident: int, data: PaymentPatch, user=Depends(get_user)):
+    with engine.begin() as c:
+        pay = fetch_one(c, "SELECT * FROM payments WHERE id=:id", {"id": ident})
+        if not pay: raise HTTPException(404, "Оплата не найдена")
+        sets = []; p = {"id": ident}
+        for k, v in data.model_dump(exclude_unset=True).items():
+            sets.append(f"{k} = :{k}")
+            p[k] = v
+        if not sets: raise HTTPException(400, "Нет данных для обновления")
+        c.execute(text("UPDATE payments SET " + ", ".join(sets) + " WHERE id=:id"), p)
+    audit(user, "update", "payment", ident)
+    return {"ok": True}
+
 @app.get("/api/admin/trainings")
 async def trainings(user=Depends(get_user)):
     with engine.connect() as c: return fetch_all(c,"SELECT t.*,tr.name trainer_name FROM trainings t LEFT JOIN trainers tr ON tr.id=t.trainer_id WHERE t.active=TRUE ORDER BY training_date DESC,start_time")
+
 @app.post("/api/admin/trainings")
 async def training_create(data:TrainingIn,user=Depends(get_user)):
     if data.end_time<=data.start_time: raise HTTPException(422,"Окончание должно быть позже начала")
@@ -363,11 +394,27 @@ async def training_create(data:TrainingIn,user=Depends(get_user)):
         p=data.model_dump()
         row=c.execute(text("INSERT INTO trainings(title,direction,trainer_id,training_date,start_time,end_time,room,capacity,note) VALUES(:title,:direction,:trainer_id,:training_date,:start_time,:end_time,:room,:capacity,:note) RETURNING id"),p).first()
     audit(user,"create","training",row.id); return {"ok":True,"id":row.id}
+
+@app.patch("/api/admin/trainings/{ident}")
+async def training_update(ident: int, data: TrainingPatch, user=Depends(get_user)):
+    with engine.begin() as c:
+        tr = fetch_one(c, "SELECT * FROM trainings WHERE id=:id", {"id": ident})
+        if not tr: raise HTTPException(404, "Тренировка не найдена")
+        sets = []; p = {"id": ident}
+        for k, v in data.model_dump(exclude_unset=True).items():
+            sets.append(f"{k} = :{k}")
+            p[k] = v
+        if not sets: raise HTTPException(400, "Нет данных для обновления")
+        c.execute(text("UPDATE trainings SET " + ", ".join(sets) + " WHERE id=:id"), p)
+    audit(user, "update", "training", ident)
+    return {"ok": True}
+
 @app.get("/api/admin/trainings/{ident}/attendance")
 async def training_attendance(ident:int,user=Depends(get_user)):
     with engine.connect() as c:
         ensure_exists(c,"trainings",ident)
         return fetch_all(c,"SELECT a.*,c.name,c.phone FROM attendance a JOIN clients c ON c.id=a.client_id WHERE a.training_id=:id ORDER BY c.name",{"id":ident})
+
 @app.post("/api/admin/attendance")
 async def attendance(data:AttendanceIn,user=Depends(get_user)):
     if data.status not in ATTENDANCE_STATUSES: raise HTTPException(422,"Недопустимый статус посещения")
