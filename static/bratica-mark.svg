@@ -1,37 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title">
   <title id="title">BRATICA Fight Club Logo</title>
   <defs>
-    <linearGradient id="plateGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#2a1640"/>
-      <stop offset="50%" stop-color="#160c24"/>
-      <stop offset="100%" stop-color="#09040e"/>
+    <!-- Эффектный неоновый градиент буквы B -->
+    <linearGradient id="bGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffb0ff"/>
+      <stop offset="30%" stop-color="#cc3eff"/>
+      <stop offset="70%" stop-color="#9110e6"/>
+      <stop offset="100%" stop-color="#510099"/>
     </linearGradient>
-    <linearGradient id="letterGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#ffb8ff"/>
-      <stop offset="30%" stop-color="#d65fff"/>
-      <stop offset="70%" stop-color="#9b1aff"/>
-      <stop offset="100%" stop-color="#550094"/>
+
+    <!-- Верхний световой глянец для объема -->
+    <linearGradient id="bGloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.75"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.3"/>
     </linearGradient>
-    <linearGradient id="letterHighlight" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.65"/>
-      <stop offset="60%" stop-color="#ffffff" stop-opacity="0.0"/>
-    </linearGradient>
-    <filter id="ultraGlow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#a020f0" flood-opacity="0.45"/>
-      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000000" flood-opacity="0.6"/>
+
+    <!-- Премиальная тень знака -->
+    <filter id="cardShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#8010d5" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.5"/>
     </filter>
-    <filter id="letterShadow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="2" dy="4" stdDeviation="2" flood-color="#1e0036" flood-opacity="0.85"/>
+
+    <!-- Тень и глубина самой буквы -->
+    <filter id="letterShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#180230" flood-opacity="0.85"/>
     </filter>
   </defs>
 
-  <!-- Плашка логотипа -->
-  <rect x="6" y="6" width="108" height="108" rx="30" fill="var(--logo-plate, url(#plateGrad))" stroke="url(#letterGrad)" stroke-width="3.5" filter="url(#ultraGlow)"/>
-  <rect x="11" y="11" width="98" height="98" rx="26" fill="none" stroke="#ffffff" stroke-opacity="0.15" stroke-width="1.5"/>
+  <!-- Внешний квадрат-подложка (цвет меняется по переменной --logo-plate из CSS) -->
+  <rect x="6" y="6" width="108" height="108" rx="30" fill="var(--logo-plate, #140e1f)" stroke="url(#bGrad)" stroke-width="4" filter="url(#cardShadow)"/>
+  
+  <!-- Тонкая внутренняя фаска 3D -->
+  <rect x="11" y="11" width="98" height="98" rx="25" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="1.5"/>
 
-  <!-- Буква B точно по центру с наклоном (skewX) и 3D-объемом -->
-  <g transform="translate(60, 60) skewX(-10) translate(-50, -52)">
-    <path d="M37 26h28c17 0 27 8 27 21 0 8-4 15-12 19 10 3 16 10 16 21 0 16-12 25-32 25H37V26zm21 17v17h8c6 0 9-3 9-9 0-5-3-8-9-8h-8zm0 32v18h9c7 0 10-4 10-10 0-5-3-8-10-8h-9z" fill="url(#letterGrad)" filter="url(#letterShadow)"/>
-    <path d="M37 26h28c17 0 27 8 27 21 0 8-4 15-12 19 10 3 16 10 16 21 0 16-12 25-32 25H37V26zm21 17v17h8c6 0 9-3 9-9 0-5-3-8-9-8h-8zm0 32v18h9c7 0 10-4 10-10 0-5-3-8-10-8h-9z" fill="url(#letterHighlight)" style="mix-blend-mode: overlay;"/>
+  <!-- Жирная, динамичная буква B по центру с наклоном -->
+  <g transform="translate(60, 60) skewX(-12) translate(-51, -53)">
+    <!-- Теневая подложка буквы -->
+    <path d="M37 26h28c17 0 27 8 27 21 0 8-4 15-12 19 10 3 16 10 16 21 0 16-12 25-32 25H37V26zm21 17v17h8c6 0 9-3 9-9 0-5-3-8-9-8h-8zm0 32v18h9c7 0 10-4 10-10 0-5-3-8-10-8h-9z" fill="url(#bGrad)" filter="url(#letterShadow)"/>
+    
+    <!-- Глянцевый объемный блик сверху -->
+    <path d="M37 26h28c17 0 27 8 27 21 0 8-4 15-12 19 10 3 16 10 16 21 0 16-12 25-32 25H37V26zm21 17v17h8c6 0 9-3 9-9 0-5-3-8-9-8h-8zm0 32v18h9c7 0 10-4 10-10 0-5-3-8-10-8h-9z" fill="url(#bGloss)" style="mix-blend-mode: overlay;"/>
   </g>
 </svg>
