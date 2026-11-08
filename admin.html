@@ -10,71 +10,514 @@
 <style>
 :root { --admin-sidebar-w: 260px; }
 body.admin-body { display: flex; min-height: 100vh; margin: 0; background: var(--bg); color: var(--text); overflow-x: hidden; }
-.side { width: var(--admin-sidebar-w); flex: none; background: var(--surface); border-right: 1px solid var(--line-strong); display: flex; flex-direction: column; padding: 24px 16px; min-height: 100vh; position: sticky; top: 0; z-index: 20; }
-.side-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; padding: 0 8px 24px; border-bottom: 1px solid var(--line); }
+.side { width: var(--admin-sidebar-w); flex: none; background: var(--surface); border-right: 1px solid var(--line-strong); display: flex; flex-direction: column; padding: 24px 16px; min-height: 100vh; position: sticky; top: 0; box-shadow: var(--shadow-md); z-index: 20; }
+.side-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 0.1em; padding: 0 8px 24px; border-bottom: 1px solid var(--line); }
 .side-brand img { width: 36px; height: 36px; filter: drop-shadow(0 0 10px var(--accent-glow)); }
 .side-nav { display: flex; flex-direction: column; gap: 6px; margin-top: 20px; flex: 1; }
-.side-nav button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 14px; background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--muted); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; text-align: left; transition: all 0.2s; }
+.side-nav button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 14px; background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--muted); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; text-align: left; transition: all 0.2s var(--ease); }
 .side-nav button:hover { background: var(--surface-2); color: var(--text); }
 .side-nav button.active { background: var(--accent-soft) !important; color: var(--accent) !important; font-weight: 800; border-left: 3px solid var(--accent); }
+.side-nav button svg { width: 18px; height: 18px; flex: none; fill: currentColor; }
 .main-area { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.top-bar { height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; border-bottom: 1px solid var(--line); background: var(--header-bg); position: sticky; top: 0; z-index: 10; }
+.top-bar { height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; border-bottom: 1px solid var(--line); background: var(--header-bg); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(12px); }
 .content-box { padding: 32px; flex: 1; }
-.table-wrap { border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: var(--surface); overflow: hidden; }
+.user-panel { display: flex; align-items: center; gap: 16px; }
+.user-info { display: flex; flex-direction: column; text-align: right; font-size: 12px; }
+.user-info b { color: var(--text); font-size: 13px; }
+.user-info span { color: var(--muted); font-size: 11px; }
+
+/* Кастомные SVG-иконки для действий в таблицах */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+.icon-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+.icon-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 30px; }
+.dash-card { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-md); padding: 20px; box-shadow: var(--shadow-sm); transition: transform 0.2s var(--ease); }
+.dash-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.dash-card small { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; }
+.dash-card small svg { width: 14px; height: 14px; fill: var(--accent); }
+.dash-card b { display: block; font-family: 'Oswald', sans-serif; font-size: 32px; margin-top: 8px; color: var(--accent); }
+
+.table-wrap { border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-md); overflow: hidden; }
 .table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-.table th { background: var(--surface-2); color: var(--accent); padding: 14px 18px; font-weight: 800; text-transform: uppercase; font-size: 11px; border-bottom: 1px solid var(--line); }
+.table th { background: var(--surface-2); color: var(--accent); padding: 14px 18px; font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; border-bottom: 1px solid var(--line); }
 .table td { padding: 14px 18px; border-bottom: 1px solid var(--line); color: var(--text); }
 .table tbody tr:hover { background: var(--accent-soft); }
-.icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: var(--radius-sm); background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--text); cursor: pointer; }
-.icon-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal-box { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-lg); width: min(540px, 100%); max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); padding: 30px; }
+.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+.modal-head h3 { margin: 0; font-family: 'Oswald', sans-serif; font-size: 24px; text-transform: uppercase; color: var(--text); }
+.modal-close { background: transparent; border: 0; color: var(--muted); font-size: 22px; cursor: pointer; }
+
+@media (max-width: 800px) {
+  body.admin-body { flex-direction: column; }
+  .side { width: 100%; min-height: auto; position: static; }
+  .content-box { padding: 18px; }
+  .top-bar { padding: 0 18px; }
+}
 </style>
 </head>
 <body class="admin-body">
+
 <aside class="side">
-  <a class="side-brand" href="#dashboard"><img src="/static/bratica-mark.svg" alt="BRATICA"><span>BRATICA<small style="display:block;font-size:8px;font-family:Manrope;color:var(--muted)">CRM 2026</small></span></a>
+  <a class="side-brand" href="#dashboard">
+    <img src="/static/bratica-mark.svg" alt="BRATICA">
+    <span>BRATICA<small style="display:block;font-size:8px;font-family:Manrope;color:var(--muted);letter-spacing:0.2em">CRM 2026</small></span>
+  </a>
+
   <nav class="side-nav" id="adminMenu">
-    <button class="active" data-section="applications">📥 Заявки с сайта</button>
+    <button class="active" data-section="dashboard">
+      <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v4h8V3h-8z"/></svg>
+      Сводка
+    </button>
+    <button data-section="applications">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+      Заявки
+    </button>
+    <button data-section="clients">
+      <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+      Клиенты
+    </button>
+    <button data-section="subscriptions">
+      <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.1 0-1.99.9-1.99 2L2 19c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h2v2h2V8h8v2h2V8h2v6z"/></svg>
+      Абонементы
+    </button>
+    <button data-section="trainings">
+      <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+      Тренировки
+    </button>
+    <button data-section="trainers">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      Тренеры
+    </button>
+    <button data-section="payments">
+      <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+      Оплаты
+    </button>
   </nav>
-  <form method="post" action="/admin/logout" style="margin-top:auto"><button class="btn secondary" style="width:100%;font-size:11px" type="submit">Выйти</button></form>
+
+  <form method="post" action="/admin/logout" style="margin-top:auto">
+    <button class="btn secondary" style="width:100%;font-size:11px;display:flex;align-items:center;justify-content:center;gap:8px" type="submit">
+      <svg style="width:14px;height:14px;fill:currentColor" viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+      Выйти
+    </button>
+  </form>
 </aside>
+
 <div class="main-area">
   <header class="top-bar">
-    <h2 id="pageTitle" style="font-family:Oswald;font-size:24px;text-transform:uppercase;margin:0">Заявки</h2>
-    <div style="display:flex;align-items:center;gap:16px">
-      <button class="theme-toggle" id="adminThemeToggle" type="button"><span>Тема</span><i class="theme-track"></i></button>
-      <span><b>Администратор</b></span>
+    <h2 id="pageTitle" style="font-family:Oswald;font-size:24px;text-transform:uppercase;margin:0">Сводка</h2>
+
+    <div class="user-panel">
+      <button class="theme-toggle" id="adminThemeToggle" type="button" aria-label="Переключить тему">
+        <span>Тема</span>
+        <i class="theme-track"></i>
+      </button>
+
+      <div class="user-info">
+        <b id="userName">Администратор</b>
+        <span id="userEmail">bratica@club.ru</span>
+      </div>
     </div>
   </header>
+
   <main class="content-box" id="mainContent"></main>
 </div>
+
+<div id="modalContainer"></div>
+
 <script>
 const $=s=>document.querySelector(s);
 const root=document.documentElement;
+
 const themeToggle=$('#adminThemeToggle');
-function setTheme(t){root.dataset.theme=t;document.body.classList.toggle('light', t==='light');themeToggle.classList.toggle('light', t==='light');localStorage.setItem('bratica-theme', t);}
+function setTheme(t){
+  root.dataset.theme=t;
+  document.body.classList.toggle('light', t==='light');
+  themeToggle.classList.toggle('light', t==='light');
+  localStorage.setItem('bratica-theme', t);
+}
 setTheme(localStorage.getItem('bratica-theme') || (matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'));
 themeToggle.onclick=()=>setTheme(root.dataset.theme==='light'?'dark':'light');
 
 async function api(url, opts={}){
   const res = await fetch(url, { credentials:'include', headers:{'Content-Type':'application/json'}, ...opts });
-  if(!res.ok) throw new Error('Ошибка запроса');
+  if(!res.ok){
+    const err = await res.json().catch(()=>({detail:'Ошибка запроса'}));
+    throw new Error(err.detail || 'Не удалось выполнить операцию');
+  }
   return res.json();
 }
 
-async function loadApps(){
+function esc(str){
+  if(!str) return '';
+  return String(str).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function closeModal(){ $('#modalContainer').innerHTML=''; }
+
+function openModal(title, formHtml, onSubmit){
+  $('#modalContainer').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3>${title}</h3>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <form id="activeModalForm">
+          <div class="fields" style="display:grid;gap:14px">
+            ${formHtml}
+          </div>
+          <div style="display:flex;gap:12px;margin-top:22px">
+            <button class="btn" type="submit" style="flex:1">Сохранить</button>
+            <button class="btn secondary" type="button" onclick="closeModal()">Отмена</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  $('#activeModalForm').onsubmit = async e => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(e.target));
+    try {
+      await onSubmit(data);
+      closeModal();
+      loadActiveSection();
+    } catch(err){
+      alert(err.message);
+    }
+  };
+}
+
+let currentSection = 'dashboard';
+
+$('#adminMenu').onclick = e => {
+  const btn = e.target.closest('[data-section]');
+  if(!btn) return;
+  document.querySelectorAll('#adminMenu button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentSection = btn.dataset.section;
+  loadActiveSection();
+};
+
+async function loadActiveSection(){
+  const main = $('#mainContent');
+  $('#pageTitle').textContent = document.querySelector(`[data-section="${currentSection}"]`).textContent.trim().replace(/^[^\s]+\s/,'');
+  main.innerHTML = '<div style="color:var(--muted)">Загрузка данных...</div>';
+
+  try {
+    if(currentSection === 'dashboard') await renderDashboard(main);
+    if(currentSection === 'applications') await renderApplications(main);
+    if(currentSection === 'clients') await renderClients(main);
+    if(currentSection === 'subscriptions') await renderSubscriptions(main);
+    if(currentSection === 'trainings') await renderTrainings(main);
+    if(currentSection === 'trainers') await renderTrainers(main);
+    if(currentSection === 'payments') await renderPayments(main);
+  } catch(err){
+    main.innerHTML = `<div style="color:red">Ошибка: ${esc(err.message)}</div>`;
+  }
+}
+
+async function renderDashboard(c){
+  const d = await api('/api/admin/dashboard');
+  c.innerHTML = `
+    <div class="dash-grid">
+      <div class="dash-card"><small><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>Новые заявки</small><b>${d.applications_new}</b></div>
+      <div class="dash-card"><small><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3z"/></svg>Активные клиенты</small><b>${d.clients_active}</b></div>
+      <div class="dash-card"><small><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.1 0-1.99.9-1.99 2L2 19c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>Действующие абонементы</small><b>${d.subscriptions_active}</b></div>
+      <div class="dash-card"><small><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2z"/></svg>Посещений сегодня</small><b>${d.visits_today}</b></div>
+    </div>
+  `;
+}
+
+async function renderApplications(c){
   const list = await api('/api/admin/applications');
-  $('#mainContent').innerHTML = `
+  c.innerHTML = `
     <div class="table-wrap">
       <table class="table">
-        <thead><tr><th>Имя</th><th>Телефон</th><th>Направление</th><th>Статус</th><th>Действия</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Имя</th><th>Телефон</th><th>Направление</th><th>Статус</th><th style="text-align:right">Действия</th>
+          </tr>
+        </thead>
         <tbody>
-          ${list.map(a=>`<tr><td><b>${a.name}</b></td><td>${a.phone}</td><td>${a.direction}</td><td><span style="color:var(--accent);font-weight:700">${a.status}</span></td><td><b>Заявка №${a.id}</b></td></tr>`).join('') || '<tr><td colspan="5" style="text-align:center">Заявок нет</td></tr>'}
+          ${list.map(a=>`
+            <tr>
+              <td><b>${esc(a.name)}</b></td>
+              <td>${esc(a.phone)}</td>
+              <td>${esc(a.direction)}</td>
+              <td><span style="color:var(--accent);font-weight:700">${esc(a.status)}</span></td>
+              <td style="text-align:right">
+                <div style="display:inline-flex;gap:8px">
+                  <button class="icon-btn" title="Редактировать" onclick="editApp(${a.id})">
+                    <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                  </button>
+                  <button class="btn small" onclick="convertApp(${a.id})">В клиенты ↗</button>
+                </div>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">Заявок нет</td></tr>'}
         </tbody>
       </table>
     </div>
   `;
 }
-loadApps();
+
+window.editApp = async id => {
+  const list = await api('/api/admin/applications');
+  const a = list.find(x=>x.id===id);
+  if(!a) return;
+  openModal('Редактировать заявку', `
+    <div class="field"><label>Имя</label><input name="name" required value="${esc(a.name)}"></div>
+    <div class="field"><label>Телефон</label><input name="phone" required value="${esc(a.phone)}"></div>
+    <div class="field"><label>Направление</label><input name="direction" required value="${esc(a.direction)}"></div>
+    <div class="field"><label>Статус</label>
+      <select name="status">
+        ${['new','contacted','booked','completed','cancelled'].map(s=>`<option value="${s}" ${a.status===s?'selected':''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field full"><label>Заметка</label><textarea name="admin_note">${esc(a.admin_note||'')}</textarea></div>
+  `, d => api(`/api/admin/applications/${id}`, {method:'PATCH', body:JSON.stringify(d)}));
+};
+
+window.convertApp = async id => {
+  if(!confirm('Перевести заявку в действующего клиента?')) return;
+  await api(`/api/admin/applications/${id}/convert`, {method:'POST'});
+  alert('Клиент создан!');
+  loadActiveSection();
+};
+
+async function renderClients(c){
+  const list = await api('/api/admin/clients');
+  c.innerHTML = `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+      <button class="btn small" onclick="createClient()">+ Новый клиент</button>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>ФИО</th><th>Телефон</th><th>Статус</th><th>Абонемент</th><th style="text-align:right">Действия</th></tr></thead>
+        <tbody>
+          ${list.map(cl=>`
+            <tr>
+              <td><b>${esc(cl.name)}</b></td>
+              <td>${esc(cl.phone)}</td>
+              <td>${esc(cl.status)}</td>
+              <td>${esc(cl.subscription_name || 'Нет')}</td>
+              <td style="text-align:right">
+                <button class="icon-btn" title="Редактировать" onclick="editClient(${cl.id})">
+                  <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="5" style="text-align:center">Клиентов пока нет</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.createClient = () => {
+  openModal('Новый клиент', `
+    <div class="field"><label>ФИО *</label><input name="name" required></div>
+    <div class="field"><label>Телефон *</label><input name="phone" required></div>
+    <div class="field"><label>Статус</label>
+      <select name="status"><option value="active">Активен</option><option value="frozen">Заморожен</option></select>
+    </div>
+    <div class="field full"><label>Заметка</label><textarea name="note"></textarea></div>
+  `, d => api('/api/admin/clients', {method:'POST', body:JSON.stringify(d)}));
+};
+
+window.editClient = async id => {
+  const {client} = await api(`/api/admin/clients/${id}`);
+  openModal('Редактировать клиента', `
+    <div class="field"><label>ФИО *</label><input name="name" required value="${esc(client.name)}"></div>
+    <div class="field"><label>Телефон *</label><input name="phone" required value="${esc(client.phone)}"></div>
+    <div class="field"><label>Статус</label>
+      <select name="status">
+        <option value="active" ${client.status==='active'?'selected':''}>Активен</option>
+        <option value="frozen" ${client.status==='frozen'?'selected':''}>Заморожен</option>
+        <option value="archived" ${client.status==='archived'?'selected':''}>Архив</option>
+      </select>
+    </div>
+    <div class="field full"><label>Заметка</label><textarea name="note">${esc(client.note||'')}</textarea></div>
+  `, d => api(`/api/admin/clients/${id}`, {method:'PATCH', body:JSON.stringify(d)}));
+};
+
+async function renderSubscriptions(c){
+  const list = await api('/api/admin/subscriptions');
+  c.innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Клиент</th><th>Название</th><th>Остаток</th><th>Период</th><th style="text-align:right">Действия</th></tr></thead>
+        <tbody>
+          ${list.map(s=>`
+            <tr>
+              <td><b>${esc(s.client_name)}</b></td>
+              <td>${esc(s.name)}</td>
+              <td>${s.lessons_left!==null?s.lessons_left:'∞'}</td>
+              <td>${s.starts_at} — ${s.ends_at}</td>
+              <td style="text-align:right">
+                <button class="icon-btn" title="Редактировать" onclick="editSub(${s.id})">
+                  <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="5" style="text-align:center">Нет абонементов</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.editSub = async id => {
+  const list = await api('/api/admin/subscriptions');
+  const s = list.find(x=>x.id===id);
+  openModal('Редактировать абонемент', `
+    <div class="field"><label>Название</label><input name="name" required value="${esc(s.name)}"></div>
+    <div class="field"><label>Остаток занятий</label><input type="number" name="lessons_left" value="${s.lessons_left||''}"></div>
+    <div class="field"><label>Дата окончания</label><input type="date" name="ends_at" required value="${s.ends_at}"></div>
+    <div class="field full"><label>Заметка</label><textarea name="note">${esc(s.note||'')}</textarea></div>
+  `, d => api(`/api/admin/subscriptions/${id}`, {method:'PATCH', body:JSON.stringify(d)}));
+};
+
+async function renderTrainers(c){
+  const list = await api('/api/admin/trainers');
+  c.innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Имя</th><th>Телефон</th><th>Направление</th><th style="text-align:right">Действия</th></tr></thead>
+        <tbody>
+          ${list.map(t=>`
+            <tr>
+              <td><b>${esc(t.name)}</b></td>
+              <td>${esc(t.phone||'—')}</td>
+              <td>${esc(t.direction||'—')}</td>
+              <td style="text-align:right">
+                <button class="icon-btn" title="Редактировать" onclick="editTrainer(${t.id})">
+                  <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="4" style="text-align:center">Нет тренеров</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.editTrainer = async id => {
+  const list = await api('/api/admin/trainers');
+  const t = list.find(x=>x.id===id);
+  openModal('Редактировать тренера', `
+    <div class="field"><label>Имя</label><input name="name" required value="${esc(t.name)}"></div>
+    <div class="field"><label>Телефон</label><input name="phone" value="${esc(t.phone||'')}"></div>
+    <div class="field"><label>Направление</label><input name="direction" value="${esc(t.direction||'')}"></div>
+    <div class="field full"><label>Заметка</label><textarea name="note">${esc(t.note||'')}</textarea></div>
+  `, d => api(`/api/admin/trainers/${id}`, {method:'PATCH', body:JSON.stringify(d)}));
+};
+
+async function renderPayments(c){
+  const list = await api('/api/admin/payments');
+  c.innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Клиент</th><th>Сумма</th><th>Дата</th><th>Метод</th><th style="text-align:right">Действия</th></tr></thead>
+        <tbody>
+          ${list.map(p=>`
+            <tr>
+              <td><b>${esc(p.client_name)}</b></td>
+              <td><b style="color:var(--accent)">${p.amount} ₽</b></td>
+              <td>${p.payment_date}</td>
+              <td>${p.method}</td>
+              <td style="text-align:right">
+                <button class="icon-btn" title="Редактировать" onclick="editPay(${p.id})">
+                  <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="5" style="text-align:center">Нет оплат</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.editPay = async id => {
+  const list = await api('/api/admin/payments');
+  const p = list.find(x=>x.id===id);
+  openModal('Редактировать оплату', `
+    <div class="field"><label>Сумма (₽)</label><input type="number" step="any" name="amount" required value="${p.amount}"></div>
+    <div class="field"><label>Дата</label><input type="date" name="payment_date" required value="${p.payment_date}"></div>
+    <div class="field full"><label>Заметка</label><textarea name="note">${esc(p.note||'')}</textarea></div>
+  `, d => api(`/api/admin/payments/${id}`, {method:'PATCH', body:JSON.stringify(d)}));
+};
+
+async function renderTrainings(c){
+  const list = await api('/api/admin/trainings');
+  c.innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Занятие</th><th>Тренер</th><th>Дата и время</th><th>Зал</th><th style="text-align:right">Действия</th></tr></thead>
+        <tbody>
+          ${list.map(tr=>`
+            <tr>
+              <td><b>${esc(tr.title)}</b></td>
+              <td>${esc(tr.trainer_name||'—')}</td>
+              <td>${tr.training_date} ${tr.start_time.slice(0,5)}–${tr.end_time.slice(0,5)}</td>
+              <td>${esc(tr.room||'Основной')}</td>
+              <td style="text-align:right">
+                <button class="icon-btn" title="Редактировать" onclick="editTr(${tr.id})">
+                  <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="5" style="text-align:center">Нет тренировок</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.editTr = async id => {
+  const list = await api('/api/admin/trainings');
+  const tr = list.find(x=>x.id===id);
+  openModal('Редактировать тренировку', `
+    <div class="field"><label>Название</label><input name="title" required value="${esc(tr.title)}"></div>
+    <div class="field"><label>Дата</label><input type="date" name="training_date" required value="${tr.training_date}"></div>
+    <div class="field"><label>Время начала</label><input type="time" name="start_time" required value="${tr.start_time.slice(0,5)}"></div>
+    <div class="field"><label>Время конца</label><input type="time" name="end_time" required value="${tr.end_time.slice(0,5)}"></div>
+    <div class="field full"><label>Заметка</label><textarea name="note">${esc(tr.note||'')}</textarea></div>
+  `, d => api(`/api/admin/trainings/${id}`,text=>{}, {method:'PATCH', body:JSON.stringify(d)}));
+};
+
+api('/api/admin/me').then(u=>{
+  $('#userName').textContent = u.name || 'Администратор';
+  $('#userEmail').textContent = u.email;
+}).catch(()=>{});
+
+loadActiveSection();
 </script>
 </body>
 </html>
