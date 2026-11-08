@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/bratica-2026.css">
-<!-- Библиотека маски для телефона -->
+<!-- Маска для телефона -->
 <script src="https://unpkg.com/imask"></script>
 </head>
 <body>
@@ -16,14 +16,19 @@
 <main id="home">
 <section class="hero"><div class="wrap hero-content"><div class="eyebrow">Новокуйбышевск · сила · дисциплина · развитие</div><h1>Сильнее<br><em>с каждым</em><br>раундом.</h1><p>Тайский бокс, бокс, киокусинкай-каратэ и йога. Тренировки для детей и взрослых — с нуля и для тех, кто уже в деле.</p><div class="actions"><a class="btn" href="#booking">Записаться на тренировку ↗</a><a class="btn secondary" href="#schedule">Расписание</a></div><div class="subnote">Первый шаг — просто прийти. Поможем выбрать группу.</div></div></section>
 <div class="wrap"><div class="metrics reveal"><div class="metric"><b>4 направления</b><span>единоборства и движение</span></div><div class="metric"><b>Дети и взрослые</b><span>подбор группы по возрасту</span></div><div class="metric"><b>Дзержинского, 13</b><span>Новокуйбышевск</span></div></div></div>
-<section id="directions"><div class="wrap"><div class="head"><div><div class="kicker">Найди своё направление</div><h2>Тренируйся<br>по-своему</h2></div><p>Техника, физическая форма и уверенность. Выбери направление под свою цель.</p></div><div class="directions"><article class="direction reveal"><div class="kicker">01 / Striking</div><h3>Тайский бокс</h3><p>Техника, выносливость и контроль.</p><a href="#booking" data-direction="Тайский бокс">Выбрать ↗</a></article><article class="direction reveal"><div class="kicker">02 / Boxing</div><h3>Бокс</h3><p>Работа ног, точность, защита и мощь.</p><a href="#booking" data-direction="Бокс">Выбрать ↗</a></article><article class="direction reveal"><div class="kicker">03 / Kyokushin</div><h3>Киокусинкай</h3><p>Сильная база, дисциплина и уважение.</p><a href="#booking" data-direction="Киокусинкай-каратэ">Выбрать ↗</a></article><article class="direction reveal"><div class="kicker">04 / Balance</div><h3>Йога</h3><p>Подвижность, дыхание и восстановление.</p><a href="#booking" data-direction="Йога">Выбрать ↗</a></article></div></div></section>
+<section id="directions"><div class="wrap"><div class="head"><div><div class="kicker">Найди своё направление</div><h2>Тренируйся<br>по-своему</h2></div><p>Техника, физическая форма и уверенность. Выбери направление под свою цель.</p></div><div class="directions"><article class="direction reveal"><div class="kicker">01 / Striking</div><h3>Тайский бокс</h3><p>Техника, выносливость и контроль.</p><a href="#booking">Выбрать ↗</a></article><article class="direction reveal"><div class="kicker">02 / Boxing</div><h3>Бокс</h3><p>Работа ног, точность, защита и мощь.</p><a href="#booking">Выбрать ↗</a></article><article class="direction reveal"><div class="kicker">03 / Kyokushin</div><h3>Киокусинкай</h3><p>Сильная база, дисциплина и уважение.</p><a href="#booking">Выбрать ↗</a></article><article class="direction reveal"><div class="kicker">04 / Balance</div><h3>Йога</h3><p>Подвижность, дыхание и восстановление.</p><a href="#booking">Выбрать ↗</a></article></div></div></section>
 
-<!-- РАСПИСАНИЕ ПОДГРУЖАЕТСЯ ИЗ БАЗЫ ДАННЫХ -->
+<!-- РАСПИСАНИЕ -->
 <section class="schedule-section" id="schedule"><div class="wrap"><div class="head"><div><div class="kicker">Планируй свой ритм</div><h2>Расписание</h2></div><p>Актуальное расписание занятий клуба.</p></div><div class="schedule-wrap"><div class="schedule" id="scheduleGrid">Загрузка расписания...</div></div></div></div></section>
 
+<!-- ЦЕНЫ -->
 <section class="prices" id="prices"><div class="wrap"><div class="head"><div><div class="kicker">Понятная стоимость</div><h2>Прайс</h2></div></div><div class="price-grid" id="priceGrid"></div></div></section>
 
-<section class="booking-section" id="booking"><div class="wrap booking"><div class="booking-copy"><div class="kicker">Первый шаг — заявка</div><h2>Запишись<br>в клуб</h2><p>Оставь контакты. Заявка сохранится в CRM, а администратор свяжется с тобой.</p><div class="facts"><div>⌖ Новокуйбышевск, ул. Дзержинского, 13</div><div>☎ <a href="tel:+79879128147">+7 (987) 912-81-47</a></div></div></div><form class="form" id="bookingForm"><div class="fields"><div class="field"><label>Имя *</label><input name="name" required maxlength="80" placeholder="Как к вам обращаться?"></div><div class="field"><label>Телефон *</label><input id="phone" name="phone" required type="tel" placeholder="+7 (___) ___-__-__"></div><div class="field"><label>Направление *</label><select id="direction" name="direction" required><option value="">Выберите направление</option><option>Тайский бокс</option><option>Бокс</option><option>Киокусинкай-каратэ</option><option>Йога</option><option>BRATICA Transform</option></select></div><div class="field full"><label>Комментарий</label><textarea name="comment" placeholder="Цель или вопрос"></textarea></div></div><button class="btn" type="submit">Отправить заявку ↗</button><div class="form-status" id="formStatus"></div></form></div></section>
+<!-- ТРЕНЕРЫ -->
+<section id="team"><div class="wrap"><div class="head"><div><div class="kicker">Профессионалы</div><h2>Тренеры</h2></div></div><div class="trainers"><article class="trainer reveal"><img src="/static/images/gym-bright.jpg" alt="Тренер"><div class="trainer-info"><span>Главный тренeр</span><h3>Алексей Брат</h3><p>Мастер спорта по тайскому боксу</p></div></article></div></div></section>
+
+<!-- ФОРМА БРОНИРОВАНИЯ -->
+<section class="booking-section" id="booking"><div class="wrap booking"><div class="booking-copy"><div class="kicker">Первый шаг — заявка</div><h2>Запишись<br>в клуб</h2><p>Оставь контакты. Заявка сохранится в CRM, а администратор свяжется с тобой.</p><div class="facts"><div>⌖ Новокуйбышевск, ул. Дзержинского, 13</div><div>☎ <a href="tel:+79879128147">+7 (987) 912-81-47</a></div></div></div><form class="form" id="bookingForm"><div class="fields"><div class="field"><label>Имя *</label><input name="name" required placeholder="Как к вам обращаться?"></div><div class="field"><label>Телефон *</label><input id="phone" name="phone" required type="tel" placeholder="+7 (___) ___-__-__"></div><div class="field"><label>Направление *</label><select name="direction" required><option value="">Выберите направление</option><option>Тайский бокс</option><option>Бокс</option><option>Киокусинкай-каратэ</option><option>Йога</option></select></div><div class="field full"><label>Комментарий</label><textarea name="comment" placeholder="Цель или вопрос"></textarea></div></div><button class="btn" type="submit">Отправить заявку ↗</button><div class="form-status" id="formStatus"></div></form></div></section>
 </main>
 <script>
 const $=s=>document.querySelector(s);
@@ -34,26 +39,22 @@ setTheme(localStorage.getItem('bratica-theme') || (matchMedia('(prefers-color-sc
 themeToggle.onclick=()=>setTheme(root.dataset.theme==='light'?'dark':'light');
 $('#menu').onclick=()=>$('#navlinks').classList.toggle('open');
 
-// Инициализация маски телефона
+// Маска для телефона
 IMask($('#phone'), { mask: '+{7} (000) 000-00-00' });
 
-// Динамическая загрузка расписания и цен с бэкенда
+// Загрузка расписания и цен
 async function loadContent() {
   try {
     const res = await fetch('/api/public/content');
     const data = await res.json();
-
-    // Рендер расписания
-    const grid = $('#scheduleGrid');
+    
     const days = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
-    grid.innerHTML = days.map(day => {
+    $('#scheduleGrid').innerHTML = days.map(day => {
       const lessons = data.schedule.filter(l => l.day_name === day);
       return `<article class="day"><h3>${day}</h3>${lessons.map(l=>`<div class="lesson"><time>${l.start_time} — ${l.end_time}</time><b>${l.title}</b><small>${l.info}</small></div>`).join('')||'<small style="color:var(--muted)">Нет занятий</small>'}</article>`;
     }).join('');
 
-    // Рендер прайса
-    const pGrid = $('#priceGrid');
-    pGrid.innerHTML = data.prices.map(p => {
+    $('#priceGrid').innerHTML = data.prices.map(p => {
       const rows = JSON.parse(p.rows_json || '[]');
       return `<article class="price"><div class="kicker">${p.kicker}</div><h3>${p.title}</h3>${rows.map(r=>`<div class="price-line"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('')}<a class="btn" href="#booking">Записаться</a></article>`;
     }).join('');
@@ -61,7 +62,6 @@ async function loadContent() {
 }
 loadContent();
 
-// Отправка формы
 const form=$('#bookingForm');
 form.onsubmit=async e=>{
   e.preventDefault();
