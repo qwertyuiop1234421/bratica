@@ -1,143 +1,523 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0910"><title>BRATICA — CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BRATICA CRM — Управление клубом</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/bratica-2026.css">
 <style>
-:root{color-scheme:dark;--bg:#09080e;--sidebar:#0e0c13;--surface:#14111a;--surface2:#1a1621;--line:#ffffff14;--text:#f7f4fa;--muted:#a69bad;--purple:#c04aff;--purple2:#871bdd;--green:#64ddb0;--amber:#f2c66d;--red:#ff8297;--radius:18px}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 75% -10%,#5b1d7828,transparent 38%),var(--bg);color:var(--text);font:14px Manrope,Arial,sans-serif;min-height:100vh}button,input,select,textarea{font:inherit}button{cursor:pointer}.shell{min-height:100vh;display:grid;grid-template-columns:252px minmax(0,1fr)}.sidebar{height:100vh;position:sticky;top:0;background:#0e0c13;border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;z-index:5}.brand{display:flex;align-items:center;gap:11px;padding:4px 10px 30px;font-weight:800;letter-spacing:.11em;font-size:17px}.brand-mark{display:grid;place-items:center;width:40px;height:40px;border:1px solid var(--purple);border-radius:50%;color:var(--purple);font:600 23px Oswald;box-shadow:0 0 25px #bd43ff22}.brand small{display:block;font:700 9px Manrope;letter-spacing:.22em;color:var(--purple);margin-top:2px}.nav-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#766c7e;padding:0 12px 9px}.nav{display:grid;gap:4px}.nav button{position:relative;border:0;background:transparent;color:#bdb4c5;text-align:left;padding:12px 13px;border-radius:11px;transition:.18s}.nav button:hover{background:#ffffff08;color:#fff}.nav button.active{background:linear-gradient(90deg,#b539ed25,#b539ed08);color:#fff}.nav button.active:before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:3px;border-radius:9px;background:var(--purple)}.nav-icon{display:inline-grid;place-items:center;width:23px;margin-right:8px;color:#d48aff}.side-bottom{margin-top:auto}.side-note{border:1px solid var(--line);background:#ffffff04;border-radius:13px;padding:12px;color:var(--muted);font-size:10px;line-height:1.5;margin:12px 4px}.logout{width:100%;padding:11px;border:1px solid var(--line);background:#ffffff05;color:#d8cfdf;border-radius:10px}.logout:hover{border-color:#ffffff35;color:#fff}.main{width:min(1540px,100%);margin:auto;padding:30px clamp(16px,3vw,42px) 60px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px}.heading-kicker{font-size:9px;text-transform:uppercase;letter-spacing:.2em;color:#cc78f4;margin-bottom:6px}.topbar h1{font:600 34px/1 Oswald;margin:0;letter-spacing:.01em}.profile{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--line);background:#ffffff05;border-radius:14px}.avatar{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#9026cf,#d65bff);display:grid;place-items:center;font-weight:800}.profile-name{font-size:11px;font-weight:700}.profile-role{font-size:9px;color:var(--muted);margin-top:2px}.page{display:none}.page.active{display:block;animation:appear .22s ease}@keyframes appear{from{opacity:.55;transform:translateY(4px)}to{opacity:1;transform:none}}.section-head{display:flex;justify-content:space-between;align-items:end;gap:18px;margin:0 0 17px}.section-head h2{margin:0;font:500 23px Oswald;letter-spacing:.04em}.section-head p{margin:5px 0 0;color:var(--muted);font-size:11px}.cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.metric{position:relative;overflow:hidden;padding:17px;background:linear-gradient(145deg,#1a1520,#121017);border:1px solid var(--line);border-radius:16px;min-height:112px}.metric:after{content:"";position:absolute;width:90px;height:90px;border-radius:50%;right:-35px;top:-42px;background:#bd43ff12;filter:blur(4px)}.metric-label{font-size:10px;color:var(--muted)}.metric-value{font:600 31px Oswald;color:#e7b4ff;margin-top:10px;font-variant-numeric:tabular-nums}.panel{margin-top:15px;padding:18px;background:linear-gradient(145deg,#17131c,#110e15);border:1px solid var(--line);border-radius:var(--radius)}.panel-title{display:flex;justify-content:space-between;align-items:center;margin:0 0 13px;font:500 19px Oswald}.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.quick{border:1px solid var(--line);background:#ffffff04;border-radius:13px;padding:14px;text-align:left;color:var(--text)}.quick:hover{border-color:#bd43ff70;background:#bd43ff0c}.quick b{display:block;font-size:12px}.quick span{display:block;color:var(--muted);font-size:10px;margin-top:5px}.toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:13px}.control{min-height:40px;background:#0c0a10;border:1px solid #ffffff1b;border-radius:10px;color:var(--text);padding:9px 12px;outline:none}.control:focus{border-color:#c04aff;box-shadow:0 0 0 3px #bd43ff18}.search{width:min(330px,100%)}.btn{min-height:40px;border:0;border-radius:10px;padding:9px 14px;color:white;font-weight:800;font-size:11px;background:linear-gradient(110deg,var(--purple2),#c13cff);box-shadow:0 8px 24px #a52be526;transition:.18s}.btn:hover{transform:translateY(-1px);filter:brightness(1.08)}.btn.secondary{background:#ffffff08;border:1px solid var(--line);box-shadow:none;color:#e8e0ed}.btn.small{min-height:32px;padding:6px 9px;font-size:10px}.table-card{overflow:hidden;padding:0}.table-scroll{overflow:auto;max-height:68vh}.table{width:100%;border-collapse:collapse;min-width:720px;font-size:11px}.table th,.table td{text-align:left;padding:13px 12px;border-bottom:1px solid #ffffff10;vertical-align:middle}.table th{position:sticky;top:0;background:#17131d;color:#cb8bea;font-size:9px;letter-spacing:.08em;text-transform:uppercase;z-index:1}.table tbody tr:hover{background:#ffffff05}.empty{padding:32px!important;text-align:center;color:var(--muted)}.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:99px;background:#ffffff0b;color:#c9bfce;font-size:9px}.badge:before{content:"";width:5px;height:5px;background:currentColor;border-radius:50%}.badge.green{color:var(--green);background:#64ddb012}.badge.red{color:var(--red);background:#ff829712}.badge.amber{color:var(--amber);background:#f2c66d12}.modal{position:fixed;inset:0;z-index:30;display:none;place-items:center;padding:16px;background:#050407b8;backdrop-filter:blur(8px)}.modal.open{display:grid}.modal-box{width:min(650px,100%);max-height:min(90vh,820px);overflow:auto;background:linear-gradient(145deg,#1a1520,#100d14);border:1px solid #bd43ff55;border-radius:20px;padding:22px;box-shadow:0 30px 100px #000b}.modal-head{display:flex;justify-content:space-between;align-items:start;margin-bottom:18px}.modal-head h2{font:500 24px Oswald;margin:0}.close{border:0;background:#ffffff0a;color:#ddd;border-radius:9px;width:32px;height:32px;font-size:20px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:10px;color:#bdb1c7}.field input,.field select,.field textarea{width:100%;background:#0c0a10;border:1px solid #ffffff1b;border-radius:9px;color:#fff;padding:11px;outline:none}.field textarea{min-height:82px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:#c04aff;box-shadow:0 0 0 3px #bd43ff18}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.detail-item{border:1px solid var(--line);border-radius:11px;padding:11px;background:#ffffff03}.detail-item span{display:block;color:var(--muted);font-size:9px;margin-bottom:5px}.detail-item b{font-size:11px;overflow-wrap:anywhere}.tabs{display:flex;gap:6px;margin:16px 0 9px;overflow:auto}.tabs button{white-space:nowrap;border:1px solid var(--line);border-radius:99px;background:#ffffff05;color:#bbb;padding:8px 11px;font-size:10px}.tabs button.active{color:#fff;border-color:#bd43ff88;background:#bd43ff18}.toast{position:fixed;right:18px;bottom:18px;z-index:50;max-width:min(390px,calc(100% - 36px));padding:13px 16px;border:1px solid #ffffff20;border-radius:12px;background:#19141f;box-shadow:0 14px 40px #0008;font-size:12px}.toast.error{border-color:#ff829766;color:#ffc0ca}.toast.ok{border-color:#64ddb066;color:#a9f1d3}.mobile-brand{display:none}
-@media(max-width:1050px){.cards{grid-template-columns:repeat(3,1fr)}.shell{grid-template-columns:220px minmax(0,1fr)}.main{padding-top:22px}}
-@media(max-width:760px){.shell{display:block}.sidebar{height:auto;position:sticky;top:0;padding:8px 10px;display:block;border-right:0;border-bottom:1px solid #ffffff20;background:#0e0c13}.brand{display:none}.mobile-brand{display:flex;align-items:center;gap:8px;font:700 13px Oswald;letter-spacing:.12em;padding:2px 3px 8px}.mobile-brand i{font-style:normal;color:var(--purple);border:1px solid var(--purple);border-radius:50%;width:27px;height:27px;display:grid;place-items:center}.nav-label,.side-note{display:none}.nav{display:flex;overflow-x:auto;gap:4px;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.nav button{white-space:nowrap;padding:9px 10px;font-size:10px}.nav button.active:before{top:auto;left:10px;right:10px;bottom:2px;width:auto;height:2px}.nav-icon{margin-right:4px;width:auto}.side-bottom{display:none}.main{padding:19px 13px 42px}.topbar{margin-bottom:20px}.topbar h1{font-size:29px}.profile{padding:6px}.profile-name{max-width:105px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.avatar{width:30px;height:30px}.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metric{min-height:94px;padding:13px;border-radius:14px}.metric-value{font-size:26px;margin-top:8px}.metric-label{font-size:9px}.quick-grid{grid-template-columns:1fr}.quick{padding:12px}.section-head{align-items:start;flex-direction:column}.toolbar{align-items:stretch}.toolbar .search{width:100%;flex:1 1 100%}.toolbar .control,.toolbar .btn{flex:1 1 auto}.panel{padding:13px}.table-scroll{max-height:none}.modal-box{padding:17px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
-@media(max-width:390px){.nav button{padding:8px;font-size:9px}.nav-icon{display:none}.profile-role{display:none}.cards{gap:7px}.metric{padding:11px}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+:root { --admin-sidebar-w: 260px; }
+body.admin-body { display: flex; min-height: 100vh; margin: 0; background: var(--bg); color: var(--text); overflow-x: hidden; }
+.side { width: var(--admin-sidebar-w); flex: none; background: var(--surface); border-right: 1px solid var(--line-strong); display: flex; flex-direction: column; padding: 24px 16px; min-height: 100vh; position: sticky; top: 0; box-shadow: var(--shadow-md); z-index: 20; }
+.side-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 0.1em; padding: 0 8px 24px; border-bottom: 1px solid var(--line); }
+.side-brand img { width: 36px; height: 36px; filter: drop-shadow(0 0 10px var(--accent-glow)); }
+.side-nav { display: flex; flex-direction: column; gap: 6px; margin-top: 20px; flex: 1; }
+.side-nav button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 14px; background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--muted); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; text-align: left; transition: all 0.2s var(--ease); }
+.side-nav button:hover { background: var(--surface-2); color: var(--text); }
+.side-nav button.active { background: var(--accent-soft) !important; color: var(--accent) !important; font-weight: 800; border-left: 3px solid var(--accent); }
+.side-nav button svg { width: 18px; height: 18px; flex: none; fill: currentColor; }
+.main-area { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.top-bar { height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; border-bottom: 1px solid var(--line); background: var(--header-bg); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(12px); }
+.content-box { padding: 32px; flex: 1; }
+.user-panel { display: flex; align-items: center; gap: 16px; }
+.user-info { display: flex; flex-direction: column; text-align: right; font-size: 12px; }
+.user-info b { color: var(--text); font-size: 13px; }
+.user-info span { color: var(--muted); font-size: 11px; }
+
+/* Кастомные SVG-иконки для действий в таблицах */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+.icon-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+.icon-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 30px; }
+.dash-card { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-md); padding: 20px; box-shadow: var(--shadow-sm); transition: transform 0.2s var(--ease); }
+.dash-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.dash-card small { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; }
+.dash-card small svg { width: 14px; height: 14px; fill: var(--accent); }
+.dash-card b { display: block; font-family: 'Oswald', sans-serif; font-size: 32px; margin-top: 8px; color: var(--accent); }
+
+.table-wrap { border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-md); overflow: hidden; }
+.table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+.table th { background: var(--surface-2); color: var(--accent); padding: 14px 18px; font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; border-bottom: 1px solid var(--line); }
+.table td { padding: 14px 18px; border-bottom: 1px solid var(--line); color: var(--text); }
+.table tbody tr:hover { background: var(--accent-soft); }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal-box { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-lg); width: min(540px, 100%); max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); padding: 30px; }
+.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+.modal-head h3 { margin: 0; font-family: 'Oswald', sans-serif; font-size: 24px; text-transform: uppercase; color: var(--text); }
+.modal-close { background: transparent; border: 0; color: var(--muted); font-size: 22px; cursor: pointer; }
+
+@media (max-width: 800px) {
+  body.admin-body { flex-direction: column; }
+  .side { width: 100%; min-height: auto; position: static; }
+  .content-box { padding: 18px; }
+  .top-bar { padding: 0 18px; }
+}
 </style>
 </head>
-<body>
-<div class="shell">
-<aside class="sidebar">
-  <div class="brand"><i class="brand-mark">B</i><div>BRATICA<small>CLUB MANAGEMENT</small></div></div>
-  <div class="mobile-brand"><i>B</i> BRATICA <span style="color:var(--purple)">CRM</span></div>
-  <div class="nav-label">Рабочее пространство</div>
-  <nav class="nav">
-    <button class="active" data-page="dashboard"><span class="nav-icon">⌂</span>Обзор</button>
-    <button data-page="applications"><span class="nav-icon">✳</span>Заявки</button>
-    <button data-page="clients"><span class="nav-icon">◉</span>Клиенты</button>
-    <button data-page="subscriptions"><span class="nav-icon">▣</span>Абонементы</button>
-    <button data-page="payments"><span class="nav-icon">₽</span>Оплаты</button>
-    <button data-page="trainings"><span class="nav-icon">▦</span>Расписание</button>
-    <button data-page="trainers"><span class="nav-icon">♙</span>Тренеры</button>
+<body class="admin-body">
+
+<aside class="side">
+  <a class="side-brand" href="#dashboard">
+    <img src="/static/bratica-mark.svg" alt="BRATICA">
+    <span>BRATICA<small style="display:block;font-size:8px;font-family:Manrope;color:var(--muted);letter-spacing:0.2em">CRM 2026</small></span>
+  </a>
+
+  <nav class="side-nav" id="adminMenu">
+    <button class="active" data-section="dashboard">
+      <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v4h8V3h-8z"/></svg>
+      Сводка
+    </button>
+    <button data-section="applications">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+      Заявки
+    </button>
+    <button data-section="clients">
+      <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+      Клиенты
+    </button>
+    <button data-section="subscriptions">
+      <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.1 0-1.99.9-1.99 2L2 19c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h2v2h2V8h8v2h2V8h2v6z"/></svg>
+      Абонементы
+    </button>
+    <button data-section="trainings">
+      <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+      Тренировки
+    </button>
+    <button data-section="trainers">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      Тренеры
+    </button>
+    <button data-section="payments">
+      <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+      Оплаты
+    </button>
   </nav>
-  <div class="side-bottom"><div class="side-note">Данные CRM сохраняются в защищённой базе клуба. Не оставляйте аккаунт открытым на общем устройстве.</div><form method="post" action="/admin/logout"><button class="logout" type="submit">↗ &nbsp;Выйти из аккаунта</button></form></div>
+
+  <form method="post" action="/admin/logout" style="margin-top:auto">
+    <button class="btn secondary" style="width:100%;font-size:11px;display:flex;align-items:center;justify-content:center;gap:8px" type="submit">
+      <svg style="width:14px;height:14px;fill:currentColor" viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+      Выйти
+    </button>
+  </form>
 </aside>
-<main class="main">
-  <header class="topbar"><div><div class="heading-kicker">BRATICA · Fight club</div><h1 id="pageTitle">Обзор</h1></div><div class="profile"><div class="avatar" id="avatar">B</div><div><div class="profile-name" id="userName">Загрузка…</div><div class="profile-role" id="userRole">CRM</div></div></div></header>
-  <section class="page active" id="dashboard"><div class="cards"><div class="metric"><div class="metric-label">Новые заявки</div><div class="metric-value" id="newApps">—</div></div><div class="metric"><div class="metric-label">Активные клиенты</div><div class="metric-value" id="activeClients">—</div></div><div class="metric"><div class="metric-label">Активные абонементы</div><div class="metric-value" id="activeSubs">—</div></div><div class="metric"><div class="metric-label">Посещения сегодня</div><div class="metric-value" id="todayVisits">—</div></div><div class="metric"><div class="metric-label">Абонементы заканчиваются за 7 дней</div><div class="metric-value" id="expiring">—</div></div></div><div class="panel"><h2 class="panel-title">Быстрые действия</h2><div class="quick-grid"><button class="quick" onclick="showPage('applications')"><b>Проверить заявки</b><span>Связаться с новыми клиентами и обработать обращения</span></button><button class="quick" onclick="showPage('clients');setTimeout(openClient,50)"><b>Добавить клиента</b><span>Создать карточку клиента вручную</span></button><button class="quick" onclick="showPage('trainings');setTimeout(openTraining,50)"><b>Добавить тренировку</b><span>Заполнить расписание клуба</span></button></div></div></section>
-  <section class="page" id="applications"><div class="section-head"><div><h2>Заявки с сайта</h2><p>Обрабатывай обращения и превращай их в карточки клиентов.</p></div></div><div class="toolbar"><input class="control search" id="appSearch" placeholder="Поиск: имя, телефон, направление"><select class="control" id="appStatus"><option value="all">Все статусы</option><option value="new">Новая</option><option value="contacted">Связались</option><option value="booked">Записан</option><option value="completed">Завершена</option><option value="cancelled">Отменена</option></select><button class="btn secondary" onclick="loadApps()">Обновить</button></div><div class="panel table-card"><div class="table-scroll"><table class="table"><thead><tr><th>Поступила</th><th>Клиент</th><th>Телефон</th><th>Направление</th><th>Предпочтения</th><th>Статус</th><th>Действие</th></tr></thead><tbody id="appsTable"></tbody></table></div></div></section>
-  <section class="page" id="clients"><div class="section-head"><div><h2>Клиенты клуба</h2><p>Карточки, абонементы и история посещений в одном месте.</p></div></div><div class="toolbar"><input class="control search" id="clientSearch" placeholder="Имя или телефон"><button class="btn" onclick="openClient()">＋ Новый клиент</button><button class="btn secondary" onclick="loadClients()">Обновить</button></div><div class="panel table-card"><div class="table-scroll"><table class="table"><thead><tr><th>Клиент</th><th>Телефон</th><th>Абонемент</th><th>Остаток занятий</th><th>Статус</th><th></th></tr></thead><tbody id="clientsTable"></tbody></table></div></div></section>
-  <section class="page" id="subscriptions"><div class="section-head"><div><h2>Абонементы</h2><p>Срок действия и остаток занятий.</p></div></div><div class="toolbar"><button class="btn" onclick="openSubscription()">＋ Оформить абонемент</button><button class="btn secondary" onclick="loadSubs()">Обновить</button></div><div class="panel table-card"><div class="table-scroll"><table class="table"><thead><tr><th>Клиент</th><th>Абонемент</th><th>Цена</th><th>Занятий осталось</th><th>Период</th><th>Статус</th></tr></thead><tbody id="subsTable"></tbody></table></div></div></section>
-  <section class="page" id="payments"><div class="section-head"><div><h2>Оплаты</h2><p>История поступлений по клиентам.</p></div></div><div class="toolbar"><button class="btn" onclick="openPayment()">＋ Записать оплату</button><button class="btn secondary" onclick="loadPayments()">Обновить</button></div><div class="panel table-card"><div class="table-scroll"><table class="table"><thead><tr><th>Дата</th><th>Клиент</th><th>Сумма</th><th>Способ</th><th>Комментарий</th></tr></thead><tbody id="paymentsTable"></tbody></table></div></div></section>
-  <section class="page" id="trainings"><div class="section-head"><div><h2>Расписание</h2><p>Занятия, тренеры и отметки посещаемости.</p></div></div><div class="toolbar"><button class="btn" onclick="openTraining()">＋ Добавить тренировку</button><button class="btn secondary" onclick="loadTrainings()">Обновить</button></div><div class="panel table-card"><div class="table-scroll"><table class="table"><thead><tr><th>Дата</th><th>Время</th><th>Занятие</th><th>Направление</th><th>Тренер</th><th>Зал</th><th></th></tr></thead><tbody id="trainingsTable"></tbody></table></div></div></section>
-  <section class="page" id="trainers"><div class="section-head"><div><h2>Тренерский состав</h2><p>Контакты и направления тренеров.</p></div></div><div class="toolbar"><button class="btn" onclick="openTrainer()">＋ Добавить тренера</button><button class="btn secondary" onclick="loadTrainers()">Обновить</button></div><div class="panel table-card"><div class="table-scroll"><table class="table"><thead><tr><th>Имя</th><th>Телефон</th><th>Направление</th><th>Заметка</th></tr></thead><tbody id="trainersTable"></tbody></table></div></div></section>
-</main></div>
-<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="modal-box" id="modalContent"></div></div><div id="toastHost"></div>
+
+<div class="main-area">
+  <header class="top-bar">
+    <h2 id="pageTitle" style="font-family:Oswald;font-size:24px;text-transform:uppercase;margin:0">Сводка</h2>
+
+    <div class="user-panel">
+      <button class="theme-toggle" id="adminThemeToggle" type="button" aria-label="Переключить тему">
+        <span>Тема</span>
+        <i class="theme-track"></i>
+      </button>
+
+      <div class="user-info">
+        <b id="userName">Администратор</b>
+        <span id="userEmail">bratica@club.ru</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="content-box" id="mainContent"></main>
+</div>
+
+<div id="modalContainer"></div>
+
 <script>
-const $=s=>document.querySelector(s), modal=$('#modal');let clientsCache=[],trainersCache=[],detailCache=null;
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function toast(message,type='ok'){const el=document.createElement('div');el.className='toast '+type;el.textContent=message;$('#toastHost').append(el);setTimeout(()=>el.remove(),3800)}
-async function api(url,options={}){const response=await fetch(url,{...options,headers:{...(options.body?{'Content-Type':'application/json'}:{}),...(options.headers||{})}});if(response.status===401){location.href='/admin/login';throw Error('Сессия завершена. Войдите снова.')}if(!response.ok){let message=`Ошибка ${response.status}`;try{const data=await response.json();message=data.detail||message}catch{}throw Error(message)}if(response.status===204)return null;return response.json()}
-const pageNames={dashboard:'Обзор',applications:'Заявки',clients:'Клиенты',subscriptions:'Абонементы',payments:'Оплаты',trainings:'Расписание',trainers:'Тренеры'};
-const loaders={dashboard:loadDashboard,applications:loadApps,clients:loadClients,subscriptions:loadSubs,payments:loadPayments,trainings:loadTrainings,trainers:loadTrainers};
-function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===id));$('#pageTitle').textContent=pageNames[id]||'CRM';loaders[id]?.().catch(e=>toast(e.message,'error'))}
-document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
-function fmtDate(value){if(!value)return '—';const d=new Date(value);return Number.isNaN(d.getTime())?String(value):d.toLocaleDateString('ru-RU')}
-function badge(status){const map={active:['Активен','green'],frozen:['Заморожен','amber'],archived:['Архив','red'],new:['Новая','amber'],contacted:['Связались',''],booked:['Записан','green'],completed:['Завершена',''],cancelled:['Отменена','red'],present:['Пришёл','green'],absent:['Не пришёл','red'],trial:['Пробное','amber']};const [label,cls]=map[status]||[status||'—',''];return `<span class="badge ${cls}">${esc(label)}</span>`}
-async function loadMe(){const u=await api('/api/admin/me');$('#userName').textContent=u.name||u.email;$('#userRole').textContent=({owner:'Владелец',admin:'Администратор',trainer:'Тренер'})[u.role]||u.role;$('#avatar').textContent=(u.name||u.email||'B').trim().charAt(0).toUpperCase()}
-async function loadDashboard(){const d=await api('/api/admin/dashboard');$('#newApps').textContent=d.applications_new??0;$('#activeClients').textContent=d.clients_active??0;$('#activeSubs').textContent=d.subscriptions_active??0;$('#todayVisits').textContent=d.visits_today??0;$('#expiring').textContent=d.expiring??0}
-async function loadApps(){const status=$('#appStatus').value,q=encodeURIComponent($('#appSearch').value.trim());const rows=await api(`/api/admin/applications?status=${encodeURIComponent(status)}&q=${q}`);$('#appsTable').innerHTML=rows.length?rows.map(a=>`<tr><td>${fmtDate(Number(a.created_at)*1000)}</td><td><b>${esc(a.name)}</b><div style="color:var(--muted);font-size:9px">${esc(a.age||'Возраст не указан')} · ${esc(a.experience||'')}</div></td><td><a style="color:#ddb2ff" href="tel:${esc(a.phone)}">${esc(a.phone)}</a></td><td>${esc(a.direction)}</td><td>${esc(a.preferred_time||'—')}</td><td><select class="control" aria-label="Статус заявки" onchange="patchApplication(${a.id},this.value)"><option value="new" ${a.status==='new'?'selected':''}>Новая</option><option value="contacted" ${a.status==='contacted'?'selected':''}>Связались</option><option value="booked" ${a.status==='booked'?'selected':''}>Записан</option><option value="completed" ${a.status==='completed'?'selected':''}>Завершена</option><option value="cancelled" ${a.status==='cancelled'?'selected':''}>Отменена</option></select></td><td><button class="btn secondary small" onclick="editApplication(${a.id})">Редактировать</button><button class="btn small" onclick="convertApplication(${a.id})">Создать клиента</button></td></tr>`).join(''):'<tr><td colspan="7" class="empty">Пока нет заявок. Новые обращения с сайта появятся здесь.</td></tr>'}
-async function patchApplication(id,status){try{await api(`/api/admin/applications/${id}`,{method:'PATCH',body:JSON.stringify({status})});toast('Статус заявки обновлён')}catch(e){toast(e.message,'error')}}
-async function convertApplication(id){try{const r=await api(`/api/admin/applications/${id}/convert`,{method:'POST'});toast(`Карточка клиента создана · №${r.client_id}`);loadApps();loadDashboard()}catch(e){toast(e.message,'error')}}
-async function loadClients(){const q=encodeURIComponent($('#clientSearch').value.trim());clientsCache=await api(`/api/admin/clients?q=${q}`);$('#clientsTable').innerHTML=clientsCache.length?clientsCache.map(c=>`<tr><td><button class="btn secondary small" onclick="openClientDetail(${c.id})">${esc(c.name)}</button></td><td><a style="color:#ddb2ff" href="tel:${esc(c.phone)}">${esc(c.phone)}</a></td><td>${esc(c.subscription_name||'Нет активного')}</td><td>${c.lessons_left==null?'∞':c.lessons_left}</td><td>${badge(c.status)}</td><td><button class="btn secondary small" onclick="openSubscription(${c.id})">Абонемент</button></td></tr>`).join(''):'<tr><td colspan="6" class="empty">Клиенты не найдены. Добавь первого клиента или преобразуй заявку.</td></tr>'}
-async function loadSubs(){const rows=await api('/api/admin/subscriptions');$('#subsTable').innerHTML=rows.length?rows.map(s=>`<tr><td>${esc(s.client_name)}<div style="color:var(--muted);font-size:9px">${esc(s.phone||'')}</div></td><td>${esc(s.name)}</td><td><b>${Number(s.price).toLocaleString('ru-RU')} ₽</b></td><td>${s.lessons_left==null?'∞':s.lessons_left}${s.lessons_total==null?'':` / ${s.lessons_total}`}</td><td>${esc(s.starts_at)} — ${esc(s.ends_at)}</td><td>${badge(s.status)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Абонементов пока нет.</td></tr>'}
-async function loadPayments(){const rows=await api('/api/admin/payments');$('#paymentsTable').innerHTML=rows.length?rows.map(p=>`<tr><td>${esc(p.payment_date)}</td><td>${esc(p.client_name)}</td><td><b>${Number(p.amount).toLocaleString('ru-RU')} ₽</b></td><td>${esc(p.method)}</td><td>${esc(p.note||'—')}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">Оплат пока нет.</td></tr>'}
-async function loadTrainings(){const rows=await api('/api/admin/trainings');$('#trainingsTable').innerHTML=rows.length?rows.map(t=>`<tr><td>${esc(t.training_date)}</td><td>${esc(String(t.start_time).slice(0,5))} — ${esc(String(t.end_time).slice(0,5))}</td><td><b>${esc(t.title)}</b></td><td>${esc(t.direction||'—')}</td><td>${esc(t.trainer_name||'—')}</td><td>${esc(t.room||'—')}</td><td><button class="btn secondary small" onclick="openAttendance(${t.id},${JSON.stringify(t.title)})">Посещения</button></td></tr>`).join(''):'<tr><td colspan="7" class="empty">Занятий пока нет. Добавь тренировку, чтобы вести посещаемость.</td></tr>'}
-async function loadTrainers(){trainersCache=await api('/api/admin/trainers');$('#trainersTable').innerHTML=trainersCache.length?trainersCache.map(t=>`<tr><td><b>${esc(t.name)}</b></td><td>${esc(t.phone||'—')}</td><td>${esc(t.direction||'—')}</td><td>${esc(t.note||'—')}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">Тренеры пока не добавлены.</td></tr>'}
-function closeModal(){modal.classList.remove('open')}modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-function showForm(title,fields,onSubmit){$('#modalContent').innerHTML=`<div class="modal-head"><h2>${title}</h2><button class="close" type="button" onclick="closeModal()" aria-label="Закрыть">×</button></div><form id="entryForm"><div class="form-grid">${fields}</div><div class="modal-actions"><button class="btn secondary" type="button" onclick="closeModal()">Отмена</button><button class="btn" type="submit">Сохранить</button></div></form>`;modal.classList.add('open');$('#entryForm').addEventListener('submit',async e=>{e.preventDefault();const button=e.submitter;button.disabled=true;try{await onSubmit(Object.fromEntries(new FormData(e.currentTarget)));closeModal();toast('Изменения сохранены');const active=document.querySelector('.page.active')?.id;await loaders[active]?.()}catch(err){toast(err.message,'error')}finally{button.disabled=false}})}
-async function editApplication(id) {
-  try {
-    const applications = await api('/api/admin/applications');
-    const application = applications.find(item => Number(item.id) === Number(id));
+const $=s=>document.querySelector(s);
+const root=document.documentElement;
 
-    if (!application) {
-      toast('Заявка не найдена', 'error');
-      return;
+const themeToggle=$('#adminThemeToggle');
+function setTheme(t){
+  root.dataset.theme=t;
+  document.body.classList.toggle('light', t==='light');
+  themeToggle.classList.toggle('light', t==='light');
+  localStorage.setItem('bratica-theme', t);
+}
+setTheme(localStorage.getItem('bratica-theme') || (matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'));
+themeToggle.onclick=()=>setTheme(root.dataset.theme==='light'?'dark':'light');
+
+async function api(url, opts={}){
+  const res = await fetch(url, { credentials:'include', headers:{'Content-Type':'application/json'}, ...opts });
+  if(!res.ok){
+    const err = await res.json().catch(()=>({detail:'Ошибка запроса'}));
+    throw new Error(err.detail || 'Не удалось выполнить операцию');
+  }
+  return res.json();
+}
+
+function esc(str){
+  if(!str) return '';
+  return String(str).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function closeModal(){ $('#modalContainer').innerHTML=''; }
+
+function openModal(title, formHtml, onSubmit){
+  $('#modalContainer').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3>${title}</h3>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <form id="activeModalForm">
+          <div class="fields" style="display:grid;gap:14px">
+            ${formHtml}
+          </div>
+          <div style="display:flex;gap:12px;margin-top:22px">
+            <button class="btn" type="submit" style="flex:1">Сохранить</button>
+            <button class="btn secondary" type="button" onclick="closeModal()">Отмена</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  $('#activeModalForm').onsubmit = async e => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(e.target));
+    try {
+      await onSubmit(data);
+      closeModal();
+      loadActiveSection();
+    } catch(err){
+      alert(err.message);
     }
+  };
+}
 
-    const statusOptions = `
-      <option value="new" ${application.status === 'new' ? 'selected' : ''}>Новая</option>
-      <option value="contacted" ${application.status === 'contacted' ? 'selected' : ''}>Связались</option>
-      <option value="booked" ${application.status === 'booked' ? 'selected' : ''}>Записан</option>
-      <option value="completed" ${application.status === 'completed' ? 'selected' : ''}>Завершена</option>
-      <option value="cancelled" ${application.status === 'cancelled' ? 'selected' : ''}>Отменена</option>
-    `;
+let currentSection = 'dashboard';
 
-    const fields = `
-      <div class="field">
-        <label for="edit-app-name">Имя *</label>
-        <input id="edit-app-name" name="name" required maxlength="80"
-               value="${esc(application.name)}">
-      </div>
+$('#adminMenu').onclick = e => {
+  const btn = e.target.closest('[data-section]');
+  if(!btn) return;
+  document.querySelectorAll('#adminMenu button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentSection = btn.dataset.section;
+  loadActiveSection();
+};
 
-      <div class="field">
-        <label for="edit-app-phone">Телефон *</label>
-        <input id="edit-app-phone" name="phone" type="tel" required maxlength="30"
-               value="${esc(application.phone)}">
-      </div>
+async function loadActiveSection(){
+  const main = $('#mainContent');
+  $('#pageTitle').textContent = document.querySelector(`[data-section="${currentSection}"]`).textContent.trim().replace(/^[^\s]+\s/,'');
+  main.innerHTML = '<div style="color:var(--muted)">Загрузка данных...</div>';
 
-      <div class="field">
-        <label for="edit-app-direction">Направление *</label>
-        <input id="edit-app-direction" name="direction" required maxlength="80"
-               value="${esc(application.direction)}">
-      </div>
-
-      <div class="field">
-        <label for="edit-app-status">Статус</label>
-        <select id="edit-app-status" name="status">
-          ${statusOptions}
-        </select>
-      </div>
-
-      <div class="field full">
-        <label for="edit-app-note">Заметка администратора</label>
-        <textarea id="edit-app-note" name="admin_note" maxlength="1000">${esc(application.admin_note || '')}</textarea>
-      </div>
-    `;
-
-    showForm('Редактировать заявку', fields, async data => {
-      await api(`/api/admin/applications/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(data)
-      });
-    });
-  } catch (error) {
-    toast(error.message || 'Не удалось открыть заявку', 'error');
+  try {
+    if(currentSection === 'dashboard') await renderDashboard(main);
+    if(currentSection === 'applications') await renderApplications(main);
+    if(currentSection === 'clients') await renderClients(main);
+    if(currentSection === 'subscriptions') await renderSubscriptions(main);
+    if(currentSection === 'trainings') await renderTrainings(main);
+    if(currentSection === 'trainers') await renderTrainers(main);
+    if(currentSection === 'payments') await renderPayments(main);
+  } catch(err){
+    main.innerHTML = `<div style="color:red">Ошибка: ${esc(err.message)}</div>`;
   }
 }
 
-function f(name,label,type='text',required=false,extra=''){return `<div class="field"><label for="f_${name}">${label}${required?' *':''}</label><input id="f_${name}" name="${name}" type="${type}" ${required?'required':''} ${extra}></div>`}
-function selectField(name,label,options,required=true,full=false){return `<div class="field ${full?'full':''}"><label for="f_${name}">${label}${required?' *':''}</label><select id="f_${name}" name="${name}" ${required?'required':''}>${options}</select></div>`}
-function textArea(name,label,full=true){return `<div class="field ${full?'full':''}"><label for="f_${name}">${label}</label><textarea id="f_${name}" name="${name}"></textarea></div>`}
-function openClient(){showForm('Новый клиент',f('name','Имя','text',true)+f('phone','Телефон','tel',true)+f('email','Email','email')+f('age','Возраст','number')+f('birth_date','Дата рождения','date')+selectField('status','Статус','<option value="active">Активен</option><option value="frozen">Заморожен</option><option value="archived">Архив</option>')+textArea('note','Заметка'),d=>api('/api/admin/clients',{method:'POST',body:JSON.stringify(d)}))}
-async function openClientDetail(id){try{const data=await api(`/api/admin/clients/${id}`);detailCache=data;const c=data.client;$('#modalContent').innerHTML=`<div class="modal-head"><h2>${esc(c.name)}</h2><button class="close" onclick="closeModal()">×</button></div><div class="detail-grid"><div class="detail-item"><span>Телефон</span><b>${esc(c.phone)}</b></div><div class="detail-item"><span>Email</span><b>${esc(c.email||'—')}</b></div><div class="detail-item"><span>Возраст</span><b>${esc(c.age||'—')}</b></div><div class="detail-item"><span>Статус</span><b>${esc(c.status)}</b></div><div class="detail-item" style="grid-column:1/-1"><span>Заметка</span><b>${esc(c.note||'—')}</b></div></div><div class="tabs"><button class="active" onclick="renderDetailTab(this,'subscriptions')">Абонементы · ${data.subscriptions.length}</button><button onclick="renderDetailTab(this,'payments')">Оплаты · ${data.payments.length}</button><button onclick="renderDetailTab(this,'attendance')">Посещения · ${data.attendance.length}</button></div><div id="detailRows"></div>`;modal.classList.add('open');renderDetailRows('subscriptions')}catch(e){toast(e.message,'error')}}
-function renderDetailTab(button,key){document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));button.classList.add('active');renderDetailRows(key)}
-function renderDetailRows(key){const rows=detailCache?.[key]||[];const labels={subscriptions:['Абонемент','Период','Остаток'],payments:['Дата','Сумма','Способ'],attendance:['Тренировка','Дата','Статус']};const values={subscriptions:r=>[r.name,`${r.starts_at} — ${r.ends_at}`,r.lessons_left==null?'∞':r.lessons_left],payments:r=>[r.payment_date,`${r.amount} ₽`,r.method],attendance:r=>[r.title,r.training_date,r.status]};$('#detailRows').innerHTML=rows.length?`<div class="table-scroll"><table class="table"><thead><tr>${labels[key].map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${values[key](r).map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'<div class="empty">Записей пока нет.</div>'}
-async function getLists(){if(!clientsCache.length)clientsCache=await api('/api/admin/clients');if(!trainersCache.length)trainersCache=await api('/api/admin/trainers')}
-async function openSubscription(clientId=''){try{await getLists();const opts=clientsCache.map(c=>`<option value="${c.id}" ${String(c.id)===String(clientId)?'selected':''}>${esc(c.name)} · ${esc(c.phone)}</option>`).join('');if(!opts){toast('Сначала добавь клиента','error');return}showForm('Оформить абонемент',selectField('client_id','Клиент',opts,true,true)+f('name','Название','text',true)+f('price','Стоимость, ₽','number',false,'min="0" step="0.01"')+f('lessons_total','Количество занятий','number',false,'min="0"')+f('lessons_left','Осталось занятий','number',false,'min="0"')+f('starts_at','Дата начала','date',true)+f('ends_at','Дата окончания','date',true)+textArea('note','Комментарий'),d=>api('/api/admin/subscriptions',{method:'POST',body:JSON.stringify({...d,client_id:+d.client_id,price:+d.price||0,lessons_total:d.lessons_total===''?null:+d.lessons_total,lessons_left:d.lessons_left===''?null:+d.lessons_left})}))}catch(e){toast(e.message,'error')}}
-async function openPayment(){try{await getLists();const opts=clientsCache.map(c=>`<option value="${c.id}">${esc(c.name)} · ${esc(c.phone)}</option>`).join('');if(!opts){toast('Сначала добавь клиента','error');return}showForm('Записать оплату',selectField('client_id','Клиент',opts,true,true)+f('subscription_id','ID абонемента','number',false,'min="1"')+f('amount','Сумма, ₽','number',true,'min="0.01" step="0.01"')+f('payment_date','Дата оплаты','date',true)+selectField('method','Способ оплаты','<option value="cash">Наличные</option><option value="card">Карта</option><option value="transfer">Перевод</option><option value="other">Другое</option>')+textArea('note','Комментарий'),d=>api('/api/admin/payments',{method:'POST',body:JSON.stringify({...d,client_id:+d.client_id,subscription_id:d.subscription_id?+d.subscription_id:null,amount:+d.amount})}))}catch(e){toast(e.message,'error')}}
-async function openTraining(){try{await getLists();const opts=trainersCache.map(t=>`<option value="${t.id}">${esc(t.name)} · ${esc(t.direction||'')}</option>`).join('');showForm('Добавить тренировку',f('title','Название занятия','text',true)+f('direction','Направление')+selectField('trainer_id','Тренер','<option value="">Не выбран</option>'+opts,false)+f('training_date','Дата','date',true)+f('start_time','Начало','time',true)+f('end_time','Окончание','time',true)+f('room','Зал')+f('capacity','Вместимость','number',false,'min="0"')+textArea('note','Заметка'),d=>api('/api/admin/trainings',{method:'POST',body:JSON.stringify({...d,trainer_id:d.trainer_id?+d.trainer_id:null,capacity:+d.capacity||0})}))}catch(e){toast(e.message,'error')}}
-function openTrainer(){showForm('Добавить тренера',f('name','Имя тренера','text',true)+f('phone','Телефон','tel')+f('direction','Направление')+textArea('note','Заметка'),d=>api('/api/admin/trainers',{method:'POST',body:JSON.stringify(d)}))}
-async function openAttendance(trainingId,title){try{await getLists();const opts=clientsCache.map(c=>`<option value="${c.id}">${esc(c.name)} · ${esc(c.phone)}</option>`).join('');if(!opts){toast('Сначала добавь клиента','error');return}showForm('Посещаемость · '+esc(title),selectField('client_id','Клиент',opts,true,true)+selectField('status','Отметка','<option value="present">Пришёл</option><option value="absent">Не пришёл</option><option value="trial">Пробное</option><option value="cancelled">Отмена</option>')+textArea('note','Заметка'),d=>api('/api/admin/attendance',{method:'POST',body:JSON.stringify({training_id:trainingId,client_id:+d.client_id,status:d.status,note:d.note||''})}))}catch(e){toast(e.message,'error')}}
-let searchTimer;$('#appSearch').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>loadApps().catch(e=>toast(e.message,'error')),250)});$('#appStatus').addEventListener('change',()=>loadApps().catch(e=>toast(e.message,'error')));$('#clientSearch').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>loadClients().catch(e=>toast(e.message,'error')),250)});
-loadMe().catch(e=>toast(e.message,'error'));loadDashboard().catch(e=>toast(e.message,'error'));
+async function renderDashboard(c){
+  const d = await api('/api/admin/dashboard');
+  c.innerHTML = `
+    <div class="dash-grid">
+      <div class="dash-card"><small><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>Новые заявки</small><b>${d.applications_new}</b></div>
+      <div class="dash-card"><small><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3z"/></svg>Активные клиенты</small><b>${d.clients_active}</b></div>
+      <div class="dash-card"><small><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.1 0-1.99.9-1.99 2L2 19c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>Действующие абонементы</small><b>${d.subscriptions_active}</b></div>
+      <div class="dash-card"><small><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2z"/></svg>Посещений сегодня</small><b>${d.visits_today}</b></div>
+    </div>
+  `;
+}
+
+async function renderApplications(c){
+  const list = await api('/api/admin/applications');
+  c.innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Имя</th><th>Телефон</th><th>Направление</th><th>Статус</th><th style="text-align:right">Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${list.map(a=>`
+            <tr>
+              <td><b>${esc(a.name)}</b></td>
+              <td>${esc(a.phone)}</td>
+              <td>${esc(a.direction)}</td>
+              <td><span style="color:var(--accent);font-weight:700">${esc(a.status)}</span></td>
+              <td style="text-align:right">
+                <div style="display:inline-flex;gap:8px">
+                  <button class="icon-btn" title="Редактировать" onclick="editApp(${a.id})">
+                    <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                  </button>
+                  <button class="btn small" onclick="convertApp(${a.id})">В клиенты ↗</button>
+                </div>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">Заявок нет</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.editApp = async id => {
+  const list = await api('/api/admin/applications');
+  const a = list.find(x=>x.id===id);
+  if(!a) return;
+  openModal('Редактировать заявку', `
+    <div class="field"><label>Имя</label><input name="name" required value="${esc(a.name)}"></div>
+    <div class="field"><label>Телефон</label><input name="phone" required value="${esc(a.phone)}"></div>
+    <div class="field"><label>Направление</label><input name="direction" required value="${esc(a.direction)}"></div>
+    <div class="field"><label>Статус</label>
+      <select name="status">
+        ${['new','contacted','booked','completed','cancelled'].map(s=>`<option value="${s}" ${a.status===s?'selected':''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field full"><label>Заметка</label><textarea name="admin_note">${esc(a.admin_note||'')}</textarea></div>
+  `, d => api(`/api/admin/applications/${id}`, {method:'PATCH', body:JSON.stringify(d)}));
+};
+
+window.convertApp = async id => {
+  if(!confirm('Перевести заявку в действующего клиента?')) return;
+  await api(`/api/admin/applications/${id}/convert`, {method:'POST'});
+  alert('Клиент создан!');
+  loadActiveSection();
+};
+
+async function renderClients(c){
+  const list = await api('/api/admin/clients');
+  c.innerHTML = `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+      <button class="btn small" onclick="createClient()">+ Новый клиент</button>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>ФИО</th><th>Телефон</th><th>Статус</th><th>Абонемент</th><th style="text-align:right">Действия</th></tr></thead>
+        <tbody>
+          ${list.map(cl=>`
+            <tr>
+              <td><b>${esc(cl.name)}</b></td>
+              <td>${esc(cl.phone)}</td>
+              <td>${esc(cl.status)}</td>
+              <td>${esc(cl.subscription_name || 'Нет')}</td>
+              <td style="text-align:right">
+                <button class="icon-btn" title="Редактировать" onclick="editClient(${cl.id})">
+                  <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="5" style="text-align:center">Клиентов пока нет</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.createClient = () => {
+  openModal('Новый клиент', `
+    <div class="field"><label>ФИО *</label><input name="name" required></div>
+    <div class="field"><label>Телефон *</label><input name="phone" required></div>
+    <div class="field"><label>Статус</label>
+      <select name="status"><option value="active">Активен</option><option value="frozen">Заморожен</option></select>
+    </div>
+    <div class="field full"><label>Заметка</label><textarea name="note"></textarea></div>
+  `, d => api('/api/admin/clients', {method:'POST', body:JSON.stringify(d)}));
+};
+
+window.editClient = async id => {
+  const {client} = await api(`/api/admin/clients/${id}`);
+  openModal('Редактировать клиента', `
+    <div class="field"><label>ФИО *</label><input name="name" required value="${esc(client.name)}"></div>
+    <div class="field"><label>Телефон *</label><input name="phone" required value="${esc(client.phone)}"></div>
+    <div class="field"><label>Статус</label>
+      <select name="status">
+        <option value="active" ${client.status==='active'?'selected':''}>Активен</option>
+        <option value="frozen" ${client.status==='frozen'?'selected':''}>Заморожен</option>
+        <option value="archived" ${client.status==='archived'?'selected':''}>Архив</option>
+      </select>
+    </div>
+    <div class="field full"><label>Заметка</label><textarea name="note">${esc(client.note||'')}</textarea></div>
+  `, d => api(`/api/admin/clients/${id}`, {method:'PATCH', body:JSON.stringify(d)}));
+};
+
+async function renderSubscriptions(c){
+  const list = await api('/api/admin/subscriptions');
+  c.innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Клиент</th><th>Название</th><th>Остаток</th><th>Период</th><th style="text-align:right">Действия</th></tr></thead>
+        <tbody>
+          ${list.map(s=>`
+            <tr>
+              <td><b>${esc(s.client_name)}</b></td>
+              <td>${esc(s.name)}</td>
+              <td>${s.lessons_left!==null?s.lessons_left:'∞'}</td>
+              <td>${s.starts_at} — ${s.ends_at}</td>
+              <td style="text-align:right">
+                <button class="icon-btn" title="Редактировать" onclick="editSub(${s.id})">
+                  <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="5" style="text-align:center">Нет абонементов</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.editSub = async id => {
+  const list = await api('/api/admin/subscriptions');
+  const s = list.find(x=>x.id===id);
+  openModal('Редактировать абонемент', `
+    <div class="field"><label>Название</label><input name="name" required value="${esc(s.name)}"></div>
+    <div class="field"><label>Остаток занятий</label><input type="number" name="lessons_left" value="${s.lessons_left||''}"></div>
+    <div class="field"><label>Дата окончания</label><input type="date" name="ends_at" required value="${s.ends_at}"></div>
+    <div class="field full"><label>Заметка</label><textarea name="note">${esc(s.note||'')}</textarea></div>
+  `, d => api(`/api/admin/subscriptions/${id}`, {method:'PATCH', body:JSON.stringify(d)}));
+};
+
+async function renderTrainers(c){
+  const list = await api('/api/admin/trainers');
+  c.innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Имя</th><th>Телефон</th><th>Направление</th><th style="text-align:right">Действия</th></tr></thead>
+        <tbody>
+          ${list.map(t=>`
+            <tr>
+              <td><b>${esc(t.name)}</b></td>
+              <td>${esc(t.phone||'—')}</td>
+              <td>${esc(t.direction||'—')}</td>
+              <td style="text-align:right">
+                <button class="icon-btn" title="Редактировать" onclick="editTrainer(${t.id})">
+                  <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="4" style="text-align:center">Нет тренеров</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.editTrainer = async id => {
+  const list = await api('/api/admin/trainers');
+  const t = list.find(x=>x.id===id);
+  openModal('Редактировать тренера', `
+    <div class="field"><label>Имя</label><input name="name" required value="${esc(t.name)}"></div>
+    <div class="field"><label>Телефон</label><input name="phone" value="${esc(t.phone||'')}"></div>
+    <div class="field"><label>Направление</label><input name="direction" value="${esc(t.direction||'')}"></div>
+    <div class="field full"><label>Заметка</label><textarea name="note">${esc(t.note||'')}</textarea></div>
+  `, d => api(`/api/admin/trainers/${id}`, {method:'PATCH', body:JSON.stringify(d)}));
+};
+
+async function renderPayments(c){
+  const list = await api('/api/admin/payments');
+  c.innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Клиент</th><th>Сумма</th><th>Дата</th><th>Метод</th><th style="text-align:right">Действия</th></tr></thead>
+        <tbody>
+          ${list.map(p=>`
+            <tr>
+              <td><b>${esc(p.client_name)}</b></td>
+              <td><b style="color:var(--accent)">${p.amount} ₽</b></td>
+              <td>${p.payment_date}</td>
+              <td>${p.method}</td>
+              <td style="text-align:right">
+                <button class="icon-btn" title="Редактировать" onclick="editPay(${p.id})">
+                  <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="5" style="text-align:center">Нет оплат</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.editPay = async id => {
+  const list = await api('/api/admin/payments');
+  const p = list.find(x=>x.id===id);
+  openModal('Редактировать оплату', `
+    <div class="field"><label>Сумма (₽)</label><input type="number" step="any" name="amount" required value="${p.amount}"></div>
+    <div class="field"><label>Дата</label><input type="date" name="payment_date" required value="${p.payment_date}"></div>
+    <div class="field full"><label>Заметка</label><textarea name="note">${esc(p.note||'')}</textarea></div>
+  `, d => api(`/api/admin/payments/${id}`, {method:'PATCH', body:JSON.stringify(d)}));
+};
+
+async function renderTrainings(c){
+  const list = await api('/api/admin/trainings');
+  c.innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Занятие</th><th>Тренер</th><th>Дата и время</th><th>Зал</th><th style="text-align:right">Действия</th></tr></thead>
+        <tbody>
+          ${list.map(tr=>`
+            <tr>
+              <td><b>${esc(tr.title)}</b></td>
+              <td>${esc(tr.trainer_name||'—')}</td>
+              <td>${tr.training_date} ${tr.start_time.slice(0,5)}–${tr.end_time.slice(0,5)}</td>
+              <td>${esc(tr.room||'Основной')}</td>
+              <td style="text-align:right">
+                <button class="icon-btn" title="Редактировать" onclick="editTr(${tr.id})">
+                  <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </button>
+              </td>
+            </tr>
+          `).join('') || '<tr><td colspan="5" style="text-align:center">Нет тренировок</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.editTr = async id => {
+  const list = await api('/api/admin/trainings');
+  const tr = list.find(x=>x.id===id);
+  openModal('Редактировать тренировку', `
+    <div class="field"><label>Название</label><input name="title" required value="${esc(tr.title)}"></div>
+    <div class="field"><label>Дата</label><input type="date" name="training_date" required value="${tr.training_date}"></div>
+    <div class="field"><label>Время начала</label><input type="time" name="start_time" required value="${tr.start_time.slice(0,5)}"></div>
+    <div class="field"><label>Время конца</label><input type="time" name="end_time" required value="${tr.end_time.slice(0,5)}"></div>
+    <div class="field full"><label>Заметка</label><textarea name="note">${esc(tr.note||'')}</textarea></div>
+  `, d => api(`/api/admin/trainings/${id}`,text=>{}, {method:'PATCH', body:JSON.stringify(d)}));
+};
+
+api('/api/admin/me').then(u=>{
+  $('#userName').textContent = u.name || 'Администратор';
+  $('#userEmail').textContent = u.email;
+}).catch(()=>{});
+
+loadActiveSection();
 </script>
 </body>
 </html>
