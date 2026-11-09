@@ -1269,6 +1269,15 @@ body.admin-body, .layout {
   text-decoration: none !important;
 }
 
+/* Идеальное отображение постеров тренеров */
+.trainer img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
 /* Фикс карточек тренеров */
 .trainers {
   display: grid;
