@@ -1,28 +1,58 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#09070d">
-<title>Вход — BRATICA CRM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Вход в CRM — BRATICA</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Oswald:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/bratica-2026.css">
 <style>
-:root{color-scheme:dark;--bg:#09070d;--surface:#151019;--line:#ffffff1c;--text:#faf7fc;--muted:#b9afc0;--purple:#bd43ff;--purple2:#8519d6;--danger:#ff9eae}*{box-sizing:border-box}body{margin:0;min-height:100svh;display:grid;place-items:center;padding:22px;background:radial-gradient(ellipse at 50% 4%,#67228748,transparent 48%),linear-gradient(145deg,#09070d,#0e0a13);color:var(--text);font-family:Manrope,Arial,sans-serif}.login-card{width:min(440px,100%);padding:clamp(24px,6vw,36px);background:linear-gradient(145deg,#1a1420f5,#100d15f5);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 100px #0009,0 0 70px #a52be512}.brand{display:flex;align-items:center;gap:13px;font-weight:800;letter-spacing:.13em;font-size:21px}.brand-mark{display:grid;place-items:center;width:46px;height:46px;border:1px solid var(--purple);border-radius:50%;color:var(--purple);font:600 25px Oswald;box-shadow:0 0 25px #b536ff24}.brand small{display:block;margin-top:4px;color:var(--purple);font-size:9px;letter-spacing:.28em}.intro{margin:21px 0;color:var(--muted);font-size:13px;line-height:1.7}.field{display:grid;gap:7px;margin:16px 0}.field label{font-size:11px;color:#ded4e4}.field input{width:100%;min-height:47px;padding:13px 14px;border:1px solid #ffffff25;border-radius:11px;background:#0c0a0f;color:#fff;outline:none;font:inherit}.field input:focus{border-color:#c15aff;box-shadow:0 0 0 4px #b536ff1e}.remember{display:flex;align-items:center;gap:9px;margin:6px 0 19px;color:#c9bdcf;font-size:11px;cursor:pointer}.remember input{width:16px;height:16px;accent-color:var(--purple)}.submit{width:100%;min-height:48px;border:0;border-radius:999px;background:linear-gradient(110deg,var(--purple2),#c13cff);color:#fff;font-weight:800;cursor:pointer;box-shadow:0 12px 32px #9a1bfa35;transition:transform .18s,filter .18s}.submit:hover{transform:translateY(-2px);filter:brightness(1.08)}.error{margin:12px 0;padding:11px 12px;border:1px solid #ff737355;border-radius:10px;background:#7d213744;color:var(--danger);font-size:12px;line-height:1.5}.hint{margin-top:17px;text-align:center;color:#887c90;font-size:10px}
+body { display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: var(--bg); color: var(--text); }
+.login-card { width: min(400px, calc(100% - 32px)); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-lg); padding: 36px; box-shadow: var(--shadow-lg); text-align: center; }
+.login-brand { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 24px; font-family: 'Oswald', sans-serif; font-size: 26px; text-decoration: none; color: var(--text); }
+.login-brand img { width: 44px; height: 44px; filter: drop-shadow(0 0 10px var(--accent-glow)); }
+.form { display: grid; gap: 14px; text-align: left; margin-top: 20px; }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 11px; font-weight: 700; color: var(--muted); }
+.field input { width: 100%; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--text); border-radius: var(--radius-sm); padding: 12px; font-size: 13px; outline: none; }
+.field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.btn { width: 100%; padding: 13px; margin-top: 10px; }
+.top-right { position: absolute; top: 20px; right: 20px; }
 </style>
 </head>
 <body>
-<main class="login-card">
-  <div class="brand"><span class="brand-mark">B</span><span>BRATICA<small>CRM · FIGHT CLUB</small></span></div>
-  <p class="intro">Закрытая панель управления клубом. Войдите под своей учётной записью сотрудника.</p>
-  {{ERROR}}
-  <form method="post" action="/admin/login">
-    <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required autocomplete="username" autofocus></div>
-    <div class="field"><label for="password">Пароль</label><input id="password" name="password" type="password" required autocomplete="current-password"></div>
-    <label class="remember"><input type="checkbox" name="remember" value="1"> Запомнить меня на этом устройстве</label>
-    <button class="submit" type="submit">Войти в панель <span aria-hidden="true">↗</span></button>
+
+<div class="top-right">
+  <button class="theme-toggle" id="themeToggle" type="button"><span>Тема</span><i class="theme-track"></i></button>
+</div>
+
+<div class="login-card">
+  <a class="login-brand" href="/">
+    <img src="/static/bratica-mark.svg" alt="BRATICA">
+    <span>BRATICA<small style="display:block;font-size:8px;font-family:Manrope;color:var(--muted);letter-spacing:0.2em">CRM 2026</small></span>
+  </a>
+  <p style="color:var(--muted);font-size:13px;margin:0">Вход для администраторов клуба</p>
+  
+  <form class="form" method="POST" action="/admin/login">
+    <div class="field">
+      <label>Email</label>
+      <input type="email5" name="username" required placeholder="admin@bratica.ru">
+    </div>
+    <div class="field">
+      <label>Пароль</label>
+      <input type="password" name="password" required placeholder="••••••••">
+    </div>
+    <button class="btn" type="submit">Войти в систему ↗️</button>
   </form>
-  <div class="hint">Не включайте запоминание на общедоступном устройстве</div>
-</main>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const root=document.documentElement;
+const themeToggle=$('#themeToggle');
+function setTheme(t){document.body.classList.toggle('light', t==='light');root.dataset.theme=t;themeToggle.classList.toggle('light', t==='light');localStorage.setItem('bratica-theme', t);}
+setTheme(localStorage.getItem('bratica-theme') || 'dark');
+themeToggle.onclick=()=>setTheme(root.dataset.theme==='light'?'dark':'light');
+</script>
 </body>
 </html>
