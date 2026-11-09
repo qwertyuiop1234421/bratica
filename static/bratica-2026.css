@@ -1342,3 +1342,56 @@ body.admin-body, .layout {
     height: 420px;
   }
 }
+/* --- ТОЧНЫЕ ИСПРАВЛЕНИЯ --- */
+
+/* 1. Убираем нафиг плавающую мобильную ссылку в самом низу */
+.mobile-cta {
+  display: none !important;
+}
+
+/* 2. Идеальная сетка для 4 тренеров в один ряд */
+.trainers {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 16px !important;
+  align-items: stretch !important;
+}
+
+.trainer {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* 3. Постеры тренеров цельные, без обрезок и искажений текста */
+.trainer img {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: 480px !important;
+  object-fit: contain !important; /* Показывает постер целиком, ничего не обрезая! */
+  background: #09070d; /* Черный фон по бокам, если постер вертикальный */
+}
+
+.trainer-info {
+  padding: 14px 16px;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  margin-top: auto;
+}
+
+/* Адаптив для мобильных устройств */
+@media(max-width: 1050px) {
+  .trainers {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media(max-width: 650px) {
+  .trainers {
+    grid-template-columns: 1fr !important;
+  }
+}
