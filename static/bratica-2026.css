@@ -1264,3 +1264,16 @@ body.admin-body, .layout {
   }
   .reveal { opacity: 1; transform: none; }
 }
+/* Убираем подчеркивание у нижней мобильной кнопки */
+.mobile-cta a {
+  text-decoration: none !important;
+}
+
+/* Идеальное отображение постеров тренеров */
+.trainer img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
