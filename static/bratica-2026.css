@@ -1367,23 +1367,6 @@ body.admin-body, .layout {
   overflow: hidden;
 }
 
-/* 3. Постеры тренеров цельные, без обрезок и искажений текста */
-.trainer img {
-  display: block !important;
-  width: 100% !important;
-  height: auto !important;
-  max-height: 480px !important;
-  object-fit: contain !important; /* Показывает постер целиком, ничего не обрезая! */
-  background: #09070d; /* Черный фон по бокам, если постер вертикальный */
-}
-
-.trainer-info {
-  padding: 14px 16px;
-  background: var(--surface);
-  border-top: 1px solid var(--line);
-  margin-top: auto;
-}
-
 /* Адаптив для мобильных устройств */
 @media(max-width: 1050px) {
   .trainers {
