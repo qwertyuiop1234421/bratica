@@ -1278,32 +1278,67 @@ body.admin-body, .layout {
   object-position: center top;
 }
 
-/* Фикс карточек тренеров */
+/* Сетка тренеров: строго 4 колонки в ряд */
 .trainers {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, 1fr) !important;
   gap: 16px;
-  align-items: stretch; /* Растягиваем карточки по высоте */
+  align-items: stretch;
 }
 
 .trainer {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
-  height: 100%; /* Карточка занимает всю доступную высоту */
-  overflow: hidden;
 }
 
 .trainer img {
+  display: block;
   width: 100%;
-  height: 320px; /* Фиксированная высота для фото */
-  object-fit: cover; /* Картинка заполняет область, не сплющиваясь */
-  object-position: center top; /* Центрируем по лицу */
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  height: 380px; /* Фиксированная высота для красивого кадрирования постеров */
+  object-fit: cover;
+  object-position: center top;
 }
 
 .trainer-info {
-  flex: 1; /* Текстовый блок занимает оставшееся место */
-  padding: 18px;
-  background: linear-gradient(180deg, rgba(20,16,25,0) 0%, var(--surface) 100%);
+  padding: 14px 16px;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
 }
 
+.trainer-info span {
+  font-size: 9.5px;
+  color: #e49aff;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 800;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.trainer-info p {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Адаптив для мобильных (на телефонах по 2 в ряд или список) */
+@media(max-width: 1050px) {
+  .trainers {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media(max-width: 650px) {
+  .trainers {
+    grid-template-columns: 1fr !important;
+  }
+  .trainer img {
+    height: 420px;
+  }
+}
