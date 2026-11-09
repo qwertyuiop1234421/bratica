@@ -1342,39 +1342,100 @@ body.admin-body, .layout {
     height: 420px;
   }
 }
-/* --- ТОЧНЫЕ ИСПРАВЛЕНИЯ --- */
+/* --- ФИКС КАРТОЧЕК ТРЕНЕРОВ (БЕСШОВНЫЙ ФОН И 4 В РЯД) --- */
 
-/* 1. Убираем нафиг плавающую мобильную ссылку в самом низу */
 .mobile-cta {
   display: none !important;
 }
 
-/* 2. Идеальная сетка для 4 тренеров в один ряд */
+/* Строго 4 колонки без переносов Натальи */
 .trainers {
   display: grid !important;
-  grid-template-columns: repeat(4, 1fr) !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   gap: 16px !important;
   align-items: stretch !important;
 }
 
 .trainer {
+  position: relative !important;
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
-  background: var(--surface);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-md);
-  overflow: hidden;
+  background: var(--surface) !important;
+  border: 1px solid var(--line-strong) !important;
+  border-radius: var(--radius-md) !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow-md) !important;
 }
 
-/* Адаптив для мобильных устройств */
-@media(max-width: 1050px) {
+.trainer:nth-child(4) {
+  grid-column: auto !important; /* Убираем уход Натальи на отдельный ряд */
+}
+
+.trainer img {
+  display: block !important;
+  width: 100% !important;
+  height: 360px !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+}
+
+/* Фон описания во всю ширину от края до края карточки */
+.trainer-info {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 16px 18px 18px !important;
+  background: var(--surface-2) !important; /* Плотный красивый фон */
+  border-top: 1px solid var(--line-strong) !important;
+  box-sizing: border-box !important;
+  flex: 1 !important;
+}
+
+.trainer-info span {
+  font-size: 9.5px;
+  color: #e49aff;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 800;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.trainer-info h3 {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  text-transform: uppercase;
+  margin: 2px 0 4px;
+  color: var(--text);
+}
+
+.trainer-info p {
+  font-size: 11.5px;
+  color: var(--text);
+  margin: 0 0 6px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+.trainer-info small {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* Адаптив для маленьких экранов */
+@media(max-width: 900px) {
   .trainers {
     grid-template-columns: repeat(2, 1fr) !important;
   }
 }
-@media(max-width: 650px) {
+@media(max-width: 550px) {
   .trainers {
     grid-template-columns: 1fr !important;
   }
 }
+
