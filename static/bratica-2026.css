@@ -1269,11 +1269,32 @@ body.admin-body, .layout {
   text-decoration: none !important;
 }
 
-/* Идеальное отображение постеров тренеров */
-.trainer img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
+/* Фикс карточек тренеров */
+.trainers {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  align-items: stretch; /* Растягиваем карточки по высоте */
 }
+
+.trainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Карточка занимает всю доступную высоту */
+  overflow: hidden;
+}
+
+.trainer img {
+  width: 100%;
+  height: 320px; /* Фиксированная высота для фото */
+  object-fit: cover; /* Картинка заполняет область, не сплющиваясь */
+  object-position: center top; /* Центрируем по лицу */
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.trainer-info {
+  flex: 1; /* Текстовый блок занимает оставшееся место */
+  padding: 18px;
+  background: linear-gradient(180deg, rgba(20,16,25,0) 0%, var(--surface) 100%);
+}
+
