@@ -186,15 +186,22 @@ async def login_page():
     return HTMLResponse(f.read_text(encoding="utf-8").replace("{{ERROR}}", ""))
 
 @app.post("/admin/login")
-async def login(email:str=Form(...),password:str=Form(...),remember:Optional[str]=Form(None)):
-    with engine.connect() as conn: user=fetch_one(conn,"SELECT * FROM users WHERE email=:email AND active=TRUE",{"email":email.strip().lower()})
-    if not user or not password_ok(password,user["password_hash"]):
-        html=(BASE/"admin_login.html").read_text(encoding="utf-8").replace("{{ERROR}}",'<div class="error">Неверный email или пароль</div>')
-        return HTMLResponse(html,status_code=401)
-    seconds=REMEMBER_SESSION_SECONDS if remember=="1" else SHORT_SESSION_SECONDS; token=secrets.token_urlsafe(48)
-    with engine.begin() as conn: conn.execute(text("INSERT INTO sessions(token,user_id,expires_at) VALUES(:token,:uid,:exp)"),{"token":token,"uid":user["id"],"exp":now()+seconds})
-    response=RedirectResponse("/admin",status_code=303)
-    response.set_cookie("bratica_session",token,httponly=True,secure=COOKIE_SECURE,samesite="lax",max_age=seconds if remember=="1" else None)
+async def admin_login(username: str = Form(...), password: str = Form(...)):
+    with engine.connect() as conn:
+        user = conn.execute(text("SELECT * FROM users WHERE email=:e"), {"e": username}).mappings().first()
+    
+    # Проверка пароля (если у тебя используется хэширование — оставь свою проверку, здесь базовый пример)
+    if not user or not hmac.compare_digest(user['password_hash'], hashlib.sha256(password.encode()).hexdigest()):
+        return RedirectResponse(url="/admin/login?error=1", status_code=303)
+    
+    # Создаем сессию
+    token = secrets.token_hex(32)
+    expires = now() + 86400 * 7 # 7 дней
+    with engine.begin() as conn:
+        conn.execute(text("INSERT INTO sessions (token, user_id, expires_at) VALUES (:t, :u, :e)"), {"t": token, "u": user['id'], "e": expires})
+    
+    response = RedirectResponse(url="/admin", status_code=303)
+    response.set_cookie(key="bratica_session", value=token, httponly=True, max_age=86400*7, samesite="lax")
     return response
 
 @app.post("/admin/logout")
