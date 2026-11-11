@@ -39,14 +39,14 @@ SCHEMA = [
 """CREATE TABLE IF NOT EXISTS directions (id BIGSERIAL PRIMARY KEY,name TEXT UNIQUE NOT NULL,active BOOLEAN NOT NULL DEFAULT TRUE)""",
 """CREATE TABLE IF NOT EXISTS trainers (id BIGSERIAL PRIMARY KEY,name TEXT NOT NULL,phone TEXT DEFAULT '',direction TEXT DEFAULT '',note TEXT DEFAULT '',active BOOLEAN NOT NULL DEFAULT TRUE)""",
 """CREATE TABLE IF NOT EXISTS clients (id BIGSERIAL PRIMARY KEY,name TEXT NOT NULL,phone TEXT NOT NULL,email TEXT DEFAULT '',birth_date TEXT DEFAULT '',age TEXT DEFAULT '',note TEXT DEFAULT '',status TEXT NOT NULL DEFAULT 'active',source_application_id BIGINT REFERENCES applications(id) ON DELETE SET NULL,created_at BIGINT NOT NULL,updated_at BIGINT NOT NULL)""",
-"""CREATE TABLE IF NOT EXISTS site_schedule (id BIGSERIAL PRIMARY KEY, day_name TEXT, start_time TEXT, end_time TEXT, title TEXT, info TEXT, sort_order INTEGER DEFAULT 0)""",
-"""CREATE TABLE IF NOT EXISTS site_prices (id BIGSERIAL PRIMARY KEY, title TEXT, kicker TEXT, rows_json TEXT, is_secondary BOOLEAN DEFAULT FALSE, sort_order INTEGER DEFAULT 0)""",
 """CREATE TABLE IF NOT EXISTS subscription_types (id BIGSERIAL PRIMARY KEY,name TEXT NOT NULL,direction TEXT DEFAULT '',price NUMERIC(12,2) NOT NULL DEFAULT 0,lessons INTEGER,duration_days INTEGER,freeze_days INTEGER DEFAULT 0,active BOOLEAN NOT NULL DEFAULT TRUE)""",
 """CREATE TABLE IF NOT EXISTS subscriptions (id BIGSERIAL PRIMARY KEY,client_id BIGINT NOT NULL REFERENCES clients(id) ON DELETE CASCADE,type_id BIGINT REFERENCES subscription_types(id) ON DELETE SET NULL,name TEXT NOT NULL,price NUMERIC(12,2) NOT NULL DEFAULT 0,lessons_total INTEGER,lessons_left INTEGER,starts_at DATE NOT NULL,ends_at DATE NOT NULL,status TEXT NOT NULL DEFAULT 'active',frozen_until DATE,note TEXT DEFAULT '',created_at BIGINT NOT NULL)""",
 """CREATE TABLE IF NOT EXISTS trainings (id BIGSERIAL PRIMARY KEY,title TEXT NOT NULL,direction TEXT DEFAULT '',trainer_id BIGINT REFERENCES trainers(id) ON DELETE SET NULL,training_date DATE NOT NULL,start_time TIME NOT NULL,end_time TIME NOT NULL,room TEXT DEFAULT '',capacity INTEGER NOT NULL DEFAULT 0,note TEXT DEFAULT '',active BOOLEAN NOT NULL DEFAULT TRUE)""",
 """CREATE TABLE IF NOT EXISTS attendance (id BIGSERIAL PRIMARY KEY,training_id BIGINT NOT NULL REFERENCES trainings(id) ON DELETE CASCADE,client_id BIGINT NOT NULL REFERENCES clients(id) ON DELETE CASCADE,status TEXT NOT NULL DEFAULT 'present',note TEXT DEFAULT '',created_at BIGINT NOT NULL,UNIQUE(training_id,client_id))""",
 """CREATE TABLE IF NOT EXISTS payments (id BIGSERIAL PRIMARY KEY,client_id BIGINT NOT NULL REFERENCES clients(id) ON DELETE CASCADE,subscription_id BIGINT REFERENCES subscriptions(id) ON DELETE SET NULL,amount NUMERIC(12,2) NOT NULL,payment_date DATE NOT NULL,method TEXT NOT NULL DEFAULT 'cash',note TEXT DEFAULT '',created_at BIGINT NOT NULL)""",
 """CREATE TABLE IF NOT EXISTS audit_log (id BIGSERIAL PRIMARY KEY,user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,action TEXT NOT NULL,entity TEXT NOT NULL,entity_id BIGINT,created_at BIGINT NOT NULL)""",
+"CREATE TABLE IF NOT EXISTS site_schedule (id BIGSERIAL PRIMARY KEY, day_name TEXT, start_time TEXT, end_time TEXT, title TEXT, info TEXT, sort_order INTEGER DEFAULT 0)",
+"CREATE TABLE IF NOT EXISTS site_prices (id BIGSERIAL PRIMARY KEY, title TEXT, kicker TEXT, rows_json TEXT, is_secondary BOOLEAN DEFAULT FALSE, sort_order INTEGER DEFAULT 0)",
 ]
 
 @asynccontextmanager
@@ -226,6 +226,14 @@ async def create_application(data:PublicApplication):
     with engine.begin() as conn:
         row=conn.execute(text("""INSERT INTO applications(name,phone,direction,age,preferred_time,experience,comment,created_at,updated_at) VALUES(:name,:phone,:direction,:age,:time,:experience,:comment,:created,:updated) RETURNING id"""),{"name":data.name,"phone":data.phone,"direction":data.direction,"age":data.age or "","time":data.preferred_time or "","experience":data.experience or "","comment":data.comment or "","created":now(),"updated":now()}).first()
     return {"ok":True,"id":row.id,"status":"new"}
+
+@app.get("/api/public/content")
+async def get_content():
+    with engine.connect() as conn:
+        return {
+            "schedule": [dict(r) for r in conn.execute(text("SELECT * FROM site_schedule ORDER BY sort_order, start_time")).mappings().all()],
+            "prices": [dict(r) for r in conn.execute(text("SELECT * FROM site_prices ORDER BY sort_order")).mappings().all()]
+        }
 
 @app.post("/api/applications")
 async def create_app(data: dict):
