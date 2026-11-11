@@ -517,6 +517,11 @@ api('/api/admin/me').then(u=>{
   $('#userEmail').textContent = u.email;
 }).catch(()=>{});
 
+fetch('/api/admin/site_schedule')
+<button data-section="site_schedule">📅 Расписание сайта</button>
+<button data-section="site_prices">💳 Прайс-лист сайта</button>
+
+
 loadActiveSection();
 </script>
 </body>
