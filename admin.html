@@ -254,7 +254,19 @@ async function loadActiveSection(){
     `;
   } else {
     currentDataList = await api(`/api/admin/${currentSection}`) || [];
+    const addBtnTitle = {
+      clients: '+ Новый клиент',
+      subscriptions: '+ Новый абонемент',
+      trainers: '+ Новый тренер',
+      payments: '+ Новая оплата'
+    }[currentSection];
+
     main.innerHTML = `
+      ${addBtnTitle ? `
+        <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+          <button class="btn small" onclick="openCreateItem('${currentSection}')">${addBtnTitle}</button>
+        </div>
+      ` : ''}
       <div class="table-wrap">
         <table class="table">
           <thead><tr><th>ID</th><th>Инфо</th><th>Статус / Заметка</th><th style="text-align:right">Действия</th></tr></thead>
@@ -262,7 +274,7 @@ async function loadActiveSection(){
             ${currentDataList.map(item => `
               <tr>
                 <td>#${item.id}</td>
-                <td><b>${item.name || item.title || '—'}</b><br><small style="color:var(--muted)">${item.phone || item.direction || ''}</small></td>
+                <td><b>${item.name || item.title || item.client_name || '—'}</b><br><small style="color:var(--muted)">${item.phone || item.direction || item.amount ? (item.amount ? item.amount + ' ₽' : item.phone) : ''}</small></td>
                 <td><span style="color:var(--accent);font-weight:700">${item.status || item.amount || '—'}</span></td>
                 <td style="text-align:right">
                   <div style="display:inline-flex;gap:6px">
@@ -284,7 +296,6 @@ async function loadActiveSection(){
   }
 }
 
-// Универсальная функция удаления записей
 window.deleteAnyItem = async (table, id) => {
   if(confirm('Удалить эту запись безвозвратно?')) {
     await api(`/api/admin/${table}/${id}`, {method: 'DELETE'});
@@ -292,27 +303,48 @@ window.deleteAnyItem = async (table, id) => {
   }
 };
 
+window.openCreateItem = section => {
+  if(section === 'clients') {
+    openEditModal('Новый клиент', `
+      <div class="field-group"><label>ФИО</label><input name="name" required placeholder="Иван Иванов"></div>
+      <div class="field-group"><label>Телефон</label><input name="phone" required placeholder="+7 (...) ...-..-.."></div>
+      <div class="field-group"><label>Статус</label><select name="status"><option value="active">Активен</option><option value="frozen">Заморожен</option></select></div>
+      <div class="field-group"><label>Заметка</label><textarea name="note"></textarea></div>
+    `, data => api('/api/admin/clients', {method:'POST', body:JSON.stringify(data)}));
+  } else if(section === 'trainers') {
+    openEditModal('Новый тренер', `
+      <div class="field-group"><label>Имя</label><input name="name" required placeholder="Имя тренера"></div>
+      <div class="field-group"><label>Телефон</label><input name="phone" placeholder="+7 (...) ...-..-.."></div>
+      <div class="field-group"><label>Направление</label><input name="direction" placeholder="Тайский бокс"></div>
+      <div class="field-group"><label>Заметка</label><textarea name="note"></textarea></div>
+    `, data => api('/api/admin/trainers', {method:'POST', body:JSON.stringify(data)}));
+  } else if(section === 'subscriptions') {
+    openEditModal('Новый абонемент', `
+      <div class="field-group"><label>ID клиента</label><input name="client_id" type="number" required placeholder="ID из вкладки Клиенты"></div>
+      <div class="field-group"><label>Название</label><input name="name" required placeholder="8 занятий"></div>
+      <div class="field-group"><label>Цена (₽)</label><input name="price" type="number" required value="2900"></div>
+      <div class="field-group"><label>Всего занятий</label><input name="lessons_total" type="number" value="8"></div>
+      <div class="field-group"><label>Дата начала</label><input name="starts_at" type="date" required value="${new Date().toISOString().split('T')[0]}"></div>
+      <div class="field-group"><label>Дата окончания</label><input name="ends_at" type="date" required value="${new Date(Date.now()+30*86400000).toISOString().split('T')[0]}"></div>
+    `, data => api('/api/admin/subscriptions', {method:'POST', body:JSON.stringify({
+      ...data, client_id: Number(data.client_id), price: Number(data.price), lessons_total: data.lessons_total ? Number(data.lessons_total) : null
+    })}));
+  } else if(section === 'payments') {
+    openEditModal('Новая оплата', `
+      <div class="field-group"><label>ID клиента</label><input name="client_id" type="number" required placeholder="ID клиента"></div>
+      <div class="field-group"><label>Сумма (₽)</label><input name="amount" type="number" required placeholder="2900"></div>
+      <div class="field-group"><label>Дата</label><input name="payment_date" type="date" required value="${new Date().toISOString().split('T')[0]}"></div>
+      <div class="field-group"><label>Способ</label><select name="method"><option value="cash">Наличные</option><option value="card">Карта</option><option>Перевод</option></select></div>
+      <div class="field-group"><label>Заметка</label><textarea name="note"></textarea></div>
+    `, data => api('/api/admin/payments', {method:'POST', body:JSON.stringify({...data, client_id: Number(data.client_id), amount: Number(data.amount)})}));
+  }
+};
+
 window.editGenericItem = id => {
   const item = currentDataList.find(x => x.id === id);
   if(!item) return;
 
-  if(currentSection === 'applications') {
-    openEditModal(`Заявка #${item.id}`, `
-      <div class="field-group"><label>Имя</label><input name="name" value="${item.name||''}" required></div>
-      <div class="field-group"><label>Телефон</label><input name="phone" value="${item.phone||''}" required></div>
-      <div class="field-group"><label>Направление</label><input name="direction" value="${item.direction||''}"></div>
-      <div class="field-group"><label>Статус</label>
-        <select name="status">
-          <option value="new" ${item.status==='new'?'selected':''}>new (Новая)</option>
-          <option value="contacted" ${item.status==='contacted'?'selected':''}>contacted (Связались)</option>
-          <option value="booked" ${item.status==='booked'?'selected':''}>booked (Записан)</option>
-          <option value="completed" ${item.status==='completed'?'selected':''}>completed (Клиент)</option>
-          <option value="cancelled" ${item.status==='cancelled'?'selected':''}>cancelled (Отказ)</option>
-        </select>
-      </div>
-      <div class="field-group"><label>Заметка администратора</label><textarea name="admin_note">${item.admin_note||''}</textarea></div>
-    `, data => api(`/api/admin/applications/${id}`, {method:'PATCH', body:JSON.stringify(data)}));
-  } else if(currentSection === 'clients') {
+  if(currentSection === 'clients') {
     openEditModal(`Клиент #${item.id}`, `
       <div class="field-group"><label>ФИО</label><input name="name" value="${item.name||''}" required></div>
       <div class="field-group"><label>Телефон</label><input name="phone" value="${item.phone||''}" required></div>
@@ -349,11 +381,11 @@ window.editPriceItem = id => {
   } catch(e){}
 
   openEditModal(`Редактировать карточку прайса`, `
-    <div class="field-group"><label>Заголовок (например: Взрослое посещение)</label><input name="title" value="${p.title||''}" required></div>
-    <div class="field-group"><label>Категория (например: Единоборства · взрослые)</label><input name="kicker" value="${p.kicker||''}" required></div>
+    <div class="field-group"><label>Заголовок</label><input name="title" value="${p.title||''}" required></div>
+    <div class="field-group"><label>Категория</label><input name="kicker" value="${p.kicker||''}" required></div>
     <div class="field-group">
-      <label>Строки цен (по одной на строку в формате: Название = Цена)</label>
-      <textarea name="raw_rows" placeholder="Разовое посещение = 400 ₽&#10;8 занятий = 2 900 ₽">${rowsText}</textarea>
+      <label>Строки цен (Название = Цена)</label>
+      <textarea name="raw_rows">${rowsText}</textarea>
     </div>
   `, async data => {
     const lines = (data.raw_rows || '').split('\n').filter(l => l.trim().length > 0);
@@ -369,11 +401,11 @@ window.editPriceItem = id => {
 
 window.openCreatePrice = () => {
   openEditModal(`Новая карточка прайса`, `
-    <div class="field-group"><label>Заголовок (например: Детское посещение)</label><input name="title" required placeholder="Детское посещение"></div>
-    <div class="field-group"><label>Категория (например: Единоборства · дети)</label><input name="kicker" required placeholder="Единоборства · дети"></div>
+    <div class="field-group"><label>Заголовок</label><input name="title" required placeholder="Например: Йога"></div>
+    <div class="field-group"><label>Категория</label><input name="kicker" required placeholder="Практика и восстановление"></div>
     <div class="field-group">
-      <label>Строки цен (по одной на строку: Название = Цена)</label>
-      <textarea name="raw_rows" placeholder="Разовое посещение = 400 ₽&#10;8 занятий = 2 600 ₽"></textarea>
+      <label>Строки цен (Название = Цена)</label>
+      <textarea name="raw_rows" placeholder="4 занятия = 3 000 ₽"></textarea>
     </div>
   `, async data => {
     const lines = (data.raw_rows || '').split('\n').filter(l => l.trim().length > 0);
@@ -396,19 +428,17 @@ window.editScheduleItem = id => {
         ${['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС'].map(d=>`<option value="${d}" ${s.day_name===d?'selected':''}>${d}</option>`).join('')}
       </select>
     </div>
-    <div class="field-group"><label>Время начала</label><input name="start_time" value="${s.start_time||''}" required placeholder="17:30"></div>
-    <div class="field-group"><label>Время конца</label><input name="end_time" value="${s.end_time||''}" required placeholder="19:00"></div>
-    <div class="field-group"><label>Направление</label><input name="title" value="${s.title||''}" required placeholder="Тайский бокс"></div>
-    <div class="field-group"><label>Группа / Примечание</label><input name="info" value="${s.info||''}" placeholder="4+ или Взрослые"></div>
+    <div class="field-group"><label>Время начала</label><input name="start_time" value="${s.start_time||''}" required></div>
+    <div class="field-group"><label>Время конца</label><input name="end_time" value="${s.end_time||''}" required></div>
+    <div class="field-group"><label>Направление</label><input name="title" value="${s.title||''}" required></div>
+    <div class="field-group"><label>Группа / Примечание</label><input name="info" value="${s.info||''}"></div>
   `, data => api(`/api/admin/site_schedule/${id}`, {method:'PATCH', body:JSON.stringify(data)}));
 };
 
 window.openCreateSchedule = () => {
   openEditModal(`Новое занятие на сайт`, `
     <div class="field-group"><label>День недели</label>
-      <select name="day_name">
-        <option>ПН</option><option>ВТ</option><option>СР</option><option>ЧТ</option><option>ПТ</option><option>СБ</option><option>ВС</option>
-      </select>
+      <select name="day_name"><option>ПН</option><option>ВТ</option><option>СР</option><option>ЧТ</option><option>ПТ</option><option>СБ</option><option>ВС</option></select>
     </div>
     <div class="field-group"><label>Время начала</label><input name="start_time" required placeholder="17:30"></div>
     <div class="field-group"><label>Время конца</label><input name="end_time" required placeholder="19:00"></div>
