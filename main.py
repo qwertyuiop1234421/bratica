@@ -57,7 +57,8 @@ MIGRATIONS = [
 ]
 
 def bootstrap_site(conn):
-    if conn.execute(text("SELECT count(*) FROM site_schedule")).scalar() == 0:
+    if conn.execute(text("SELECT count(*) FROM site_schedule")).scalar() < 10:
+        conn.execute(text("DELETE FROM site_schedule"))
         sch = [
             ('ПН','17:30','19:00','Тайский бокс','Дети 4+ (Группа Б)'),
             ('ПН','19:00','20:30','Киокусинкай-каратэ','Группа Б'),
@@ -77,7 +78,8 @@ def bootstrap_site(conn):
         for s in sch:
             conn.execute(text("INSERT INTO site_schedule (day_name,start_time,end_time,title,info) VALUES (:d,:s,:e,:t,:i)"), {"d":s[0],"s":s[1],"e":s[2],"t":s[3],"i":s[4]})
     
-    if conn.execute(text("SELECT count(*) FROM site_prices")).scalar() == 0:
+    if conn.execute(text("SELECT count(*) FROM site_prices")).scalar() < 3:
+        conn.execute(text("DELETE FROM site_prices"))
         pr = [
             (
                 'Детское посещение',
@@ -104,10 +106,8 @@ def bootstrap_site(conn):
 @asynccontextmanager
 async def lifespan(app):
     with engine.begin() as conn:
-        for statement in SCHEMA:
-            conn.execute(text(statement))
-        for m in MIGRATIONS:
-            conn.execute(text(m))
+        for statement in SCHEMA: conn.execute(text(statement))
+        for m in MIGRATIONS: conn.execute(text(m))
         for name in ["Тайский бокс", "Бокс", "Киокусинкай-каратэ", "Йога", "BRATICA Transform"]:
             conn.execute(text("INSERT INTO directions(name) VALUES(:name) ON CONFLICT(name) DO NOTHING"), {"name": name})
         bootstrap_site(conn)
@@ -130,8 +130,7 @@ def password_ok(password, stored):
         salt, digest = stored.split(":", 1)
         actual = hashlib.pbkdf2_hmac("sha256", password.encode(), bytes.fromhex(salt), 210000).hex()
         return hmac.compare_digest(actual, digest)
-    except Exception:
-        return False
+    except Exception: return False
 
 def bootstrap_user():
     email = os.getenv("ADMIN_EMAIL", "").strip().lower()
@@ -293,11 +292,9 @@ async def home():
 @app.get("/health")
 async def health():
     try:
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
+        with engine.connect() as conn: conn.execute(text("SELECT 1"))
         return {"ok": True, "service": "bratica", "database": "postgresql"}
-    except Exception as exc:
-        raise HTTPException(503, "Database unavailable") from exc
+    except Exception as exc: raise HTTPException(503, "Database unavailable") from exc
 
 @app.get("/admin/login", response_class=HTMLResponse)
 async def login_page():
@@ -309,16 +306,12 @@ async def login_page():
 async def admin_login(username: str = Form(...), password: str = Form(...)):
     with engine.connect() as conn:
         user = conn.execute(text("SELECT * FROM users WHERE email=:e"), {"e": username.strip().lower()}).mappings().first()
-
     if not user or not password_ok(password, user["password_hash"]):
         return RedirectResponse(url="/admin/login?error=1", status_code=303)
-
     token = secrets.token_hex(32)
     expires = now() + 86400 * 7
     with engine.begin() as conn:
-        conn.execute(text("INSERT INTO sessions (token, user_id, expires_at) VALUES (:t, :u, :e)"),
-                     {"t": token, "u": user['id'], "e": expires})
-
+        conn.execute(text("INSERT INTO sessions (token, user_id, expires_at) VALUES (:t, :u, :e)"), {"t": token, "u": user['id'], "e": expires})
     response = RedirectResponse(url="/admin", status_code=303)
     response.set_cookie(key="bratica_session", value=token, httponly=True, max_age=86400 * 7, samesite="lax")
     return response
@@ -334,10 +327,8 @@ async def logout(request: Request):
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_page(request: Request):
-    try:
-        get_user(request)
-    except HTTPException:
-        return RedirectResponse("/admin/login", status_code=303)
+    try: get_user(request)
+    except HTTPException: return RedirectResponse("/admin/login", status_code=303)
     f = BASE / "admin.html"
     if not f.exists(): raise HTTPException(404, "admin.html не найден")
     return HTMLResponse(f.read_text(encoding="utf-8"))
@@ -381,23 +372,19 @@ async def applications(status: str = "all", q: str = "", user=Depends(get_user))
     if status != "all": conditions.append("status=:status"); p["status"] = status
     if q.strip(): conditions.append("(name ILIKE :q OR phone ILIKE :q OR direction ILIKE :q)"); p["q"] = "%" + q.strip() + "%"
     where = " WHERE " + " AND ".join(conditions) if conditions else ""
-    with engine.connect() as c:
-        return fetch_all(c, "SELECT * FROM applications" + where + " ORDER BY created_at DESC", p)
+    with engine.connect() as c: return fetch_all(c, "SELECT * FROM applications" + where + " ORDER BY created_at DESC", p)
 
 @app.patch("/api/admin/applications/{ident}")
 async def application_patch(ident: int, data: ApplicationPatch, user=Depends(get_user)):
-    if data.status is not None and data.status not in STATUSES:
-        raise HTTPException(status_code=422, detail="Недопустимый статус")
+    if data.status is not None and data.status not in STATUSES: raise HTTPException(status_code=422, detail="Недопустимый статус")
     fields = {"name": data.name, "phone": data.phone, "direction": data.direction, "age": data.age,
               "preferred_time": data.preferred_time, "experience": data.experience, "comment": data.comment,
               "status": data.status, "admin_note": data.admin_note}
     sets = []; params = {"id": ident, "updated": now()}
     for k, v in fields.items():
         if v is not None:
-            if k in {"name", "direction"} and not str(v).strip():
-                raise HTTPException(status_code=422, detail=f"Поле {k} не может быть пустым")
-            if k == "phone" and sum(ch.isdigit() for ch in str(v)) < 10:
-                raise HTTPException(status_code=422, detail="Некорректный телефон")
+            if k in {"name", "direction"} and not str(v).strip(): raise HTTPException(status_code=422, detail=f"Поле {k} не может быть пустым")
+            if k == "phone" and sum(ch.isdigit() for ch in str(v)) < 10: raise HTTPException(status_code=422, detail="Некорректный телефон")
             sets.append(f"{k} = :{k}")
             params[k] = v.strip() if isinstance(v, str) else v
     if not sets: raise HTTPException(status_code=400, detail="Нет данных для обновления")
@@ -407,14 +394,6 @@ async def application_patch(ident: int, data: ApplicationPatch, user=Depends(get
         if res.rowcount == 0: raise HTTPException(status_code=404, detail="Заявка не найдена")
     audit(user, "update", "application", ident)
     return {"ok": True, "id": ident}
-
-@app.delete("/api/admin/applications/{ident}")
-async def application_delete(ident: int, user=Depends(get_user)):
-    with engine.begin() as conn:
-        res = conn.execute(text("DELETE FROM applications WHERE id = :id"), {"id": ident})
-        if res.rowcount == 0: raise HTTPException(status_code=404, detail="Заявка не найдена")
-    audit(user, "delete", "application", ident)
-    return {"ok": True}
 
 @app.post("/api/admin/applications/{ident}/convert")
 async def convert_application(ident: int, user=Depends(get_user)):
@@ -427,8 +406,7 @@ async def convert_application(ident: int, user=Depends(get_user)):
             "INSERT INTO clients(name,phone,age,note,status,source_application_id,created_at,updated_at) VALUES(:name,:phone,:age,:note,'active',:source,:created,:updated) RETURNING id"),
                         {"name": a["name"], "phone": a["phone"], "age": a["age"], "note": a["comment"], "source": ident,
                          "created": now(), "updated": now()}).first()
-        c.execute(text("UPDATE applications SET status='completed',updated_at=:t WHERE id=:id"),
-                  {"t": now(), "id": ident})
+        c.execute(text("UPDATE applications SET status='completed',updated_at=:t WHERE id=:id"), {"t": now(), "id": ident})
     audit(user, "convert", "application", ident)
     return {"ok": True, "client_id": row.id}
 
@@ -460,8 +438,7 @@ async def client_create(data: ClientIn, user=Depends(get_user)):
                             {"name": data.name, "phone": data.phone, "email": data.email, "birth": data.birth_date,
                              "age": data.age, "note": data.note, "status": data.status, "created": now(),
                              "updated": now()}).first()
-    except IntegrityError:
-        raise HTTPException(409, "Не удалось создать клиента")
+    except IntegrityError: raise HTTPException(409, "Не удалось создать клиента")
     audit(user, "create", "client", row.id)
     return {"ok": True, "id": row.id}
 
@@ -526,8 +503,7 @@ async def subscription_update(ident: int, data: SubscriptionPatch, user=Depends(
         if not sub: raise HTTPException(404, "Абонемент не найден")
         sets = []; p = {"id": ident}
         for k, v in data.model_dump(exclude_unset=True).items():
-            sets.append(f"{k} = :{k}")
-            p[k] = v
+            sets.append(f"{k} = :{k}"); p[k] = v
         if not sets: raise HTTPException(400, "Нет данных для обновления")
         c.execute(text("UPDATE subscriptions SET " + ", ".join(sets) + " WHERE id=:id"), p)
     audit(user, "update", "subscription", ident)
@@ -556,45 +532,26 @@ async def payment_update(ident: int, data: PaymentPatch, user=Depends(get_user))
         if not pay: raise HTTPException(404, "Оплата не найдена")
         sets = []; p = {"id": ident}
         for k, v in data.model_dump(exclude_unset=True).items():
-            sets.append(f"{k} = :{k}")
-            p[k] = v
+            sets.append(f"{k} = :{k}"); p[k] = v
         if not sets: raise HTTPException(400, "Нет данных для обновления")
         c.execute(text("UPDATE payments SET " + ", ".join(sets) + " WHERE id=:id"), p)
     audit(user, "update", "payment", ident)
     return {"ok": True}
 
-@app.get("/api/admin/trainings")
-async def trainings(user=Depends(get_user)):
-    with engine.connect() as c: return fetch_all(c, "SELECT t.*,tr.name trainer_name FROM trainings t LEFT JOIN trainers tr ON tr.id=t.trainer_id WHERE t.active=TRUE ORDER BY training_date DESC,start_time")
-
-@app.post("/api/admin/trainings")
-async def training_create(data: TrainingIn, user=Depends(get_user)):
-    if data.end_time <= data.start_time: raise HTTPException(422, "Окончание должно быть позже начала")
-    with engine.begin() as c:
-        if data.trainer_id: ensure_exists(c, "trainers", data.trainer_id)
-        p = data.model_dump()
-        row = c.execute(text("INSERT INTO trainings(title,direction,trainer_id,training_date,start_time,end_time,room,capacity,note) VALUES(:title,:direction,:trainer_id,:training_date,:start_time,:end_time,:room,:capacity,:note) RETURNING id"), p).first()
-    audit(user, "create", "training", row.id)
-    return {"ok": True, "id": row.id}
-
-@app.patch("/api/admin/trainings/{ident}")
-async def training_update(ident: int, data: TrainingPatch, user=Depends(get_user)):
-    with engine.begin() as c:
-        tr = fetch_one(c, "SELECT * FROM trainings WHERE id=:id", {"id": ident})
-        if not tr: raise HTTPException(404, "Тренировка не найдена")
-        sets = []; p = {"id": ident}
-        for k, v in data.model_dump(exclude_unset=True).items():
-            sets.append(f"{k} = :{k}")
-            p[k] = v
-        if not sets: raise HTTPException(400, "Нет данных для обновления")
-        c.execute(text("UPDATE trainings SET " + ", ".join(sets) + " WHERE id=:id"), p)
-    audit(user, "update", "training", ident)
+# УНИВЕРСАЛЬНОЕ УДАЛЕНИЕ ДЛЯ ВСЕХ ТАБЛИЦ CRM
+@app.delete("/api/admin/{table}/{ident}")
+async def generic_delete(table: str, ident: int, user=Depends(get_user)):
+    allowed = {"applications", "clients", "subscriptions", "trainers", "payments", "site_schedule", "site_prices"}
+    if table not in allowed: raise HTTPException(400, "Недопустимая таблица")
+    with engine.begin() as conn:
+        res = conn.execute(text(f"DELETE FROM {table} WHERE id = :id"), {"id": ident})
+        if res.rowcount == 0: raise HTTPException(404, "Запись не найдена")
+    audit(user, "delete", table, ident)
     return {"ok": True}
 
 @app.get("/api/admin/site_schedule")
 async def get_admin_schedule(user=Depends(get_user)):
-    with engine.connect() as c:
-        return fetch_all(c, "SELECT * FROM site_schedule ORDER BY sort_order, start_time")
+    with engine.connect() as c: return fetch_all(c, "SELECT * FROM site_schedule ORDER BY sort_order, start_time")
 
 @app.post("/api/admin/site_schedule")
 async def create_admin_schedule(data: ScheduleIn, user=Depends(get_user)):
@@ -612,17 +569,9 @@ async def patch_admin_schedule(ident: int, data: dict, user=Depends(get_user)):
     audit(user, "update", "site_schedule", ident)
     return {"ok": True}
 
-@app.delete("/api/admin/site_schedule/{ident}")
-async def delete_admin_schedule(ident: int, user=Depends(get_user)):
-    with engine.begin() as c:
-        c.execute(text("DELETE FROM site_schedule WHERE id=:id"), {"id": ident})
-    audit(user, "delete", "site_schedule", ident)
-    return {"ok": True}
-
 @app.get("/api/admin/site_prices")
 async def get_admin_prices(user=Depends(get_user)):
-    with engine.connect() as c:
-        return fetch_all(c, "SELECT * FROM site_prices ORDER BY sort_order")
+    with engine.connect() as c: return fetch_all(c, "SELECT * FROM site_prices ORDER BY sort_order")
 
 @app.post("/api/admin/site_prices")
 async def create_admin_prices(data: PriceIn, user=Depends(get_user)):
@@ -640,19 +589,10 @@ async def patch_admin_prices(ident: int, data: dict, user=Depends(get_user)):
     audit(user, "update", "site_prices", ident)
     return {"ok": True}
 
-@app.delete("/api/admin/site_prices/{ident}")
-async def delete_admin_prices(ident: int, user=Depends(get_user)):
-    with engine.begin() as c:
-        c.execute(text("DELETE FROM site_prices WHERE id=:id"), {"id": ident})
-    audit(user, "delete", "site_prices", ident)
-    return {"ok": True}
-
 def self_ping():
     while True:
         time.sleep(300)
-        try:
-            urllib.request.urlopen("https://bratica.onrender.com", timeout=10)
-        except Exception:
-            pass
+        try: urllib.request.urlopen("https://bratica.onrender.com", timeout=10)
+        except Exception: pass
 
 threading.Thread(target=self_ping, daemon=True).start()
