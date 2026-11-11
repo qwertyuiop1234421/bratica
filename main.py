@@ -1,4 +1,4 @@
-import os, time, secrets, hashlib, hmac, json, threading, httpx
+import os, time, secrets, hashlib, hmac, json, threading, urllib.request
 from pathlib import Path
 from contextlib import asynccontextmanager
 from datetime import datetime, date, timedelta, timezone
@@ -46,7 +46,14 @@ SCHEMA = [
     """CREATE TABLE IF NOT EXISTS payments (id BIGSERIAL PRIMARY KEY,client_id BIGINT NOT NULL REFERENCES clients(id) ON DELETE CASCADE,subscription_id BIGINT REFERENCES subscriptions(id) ON DELETE SET NULL,amount NUMERIC(12,2) NOT NULL,payment_date DATE NOT NULL,method TEXT NOT NULL DEFAULT 'cash',note TEXT DEFAULT '',created_at BIGINT NOT NULL)""",
     """CREATE TABLE IF NOT EXISTS audit_log (id BIGSERIAL PRIMARY KEY,user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,action TEXT NOT NULL,entity TEXT NOT NULL,entity_id BIGINT,created_at BIGINT NOT NULL)""",
     "CREATE TABLE IF NOT EXISTS site_schedule (id BIGSERIAL PRIMARY KEY, day_name TEXT, start_time TEXT, end_time TEXT, title TEXT, info TEXT, sort_order INTEGER DEFAULT 0)",
-    "CREATE TABLE IF NOT EXISTS site_prices (id BIGSERIAL PRIMARY KEY, title TEXT, kicker TEXT, rows_json TEXT, is_secondary BOOLEAN DEFAULT FALSE, sort_order INTEGER DEFAULT 0)",
+    "CREATE TABLE IF NOT EXISTS site_prices (id BIGSERIAL PRIMARY KEY, title TEXT, kicker TEXT DEFAULT '', rows_json TEXT DEFAULT '[]', is_secondary BOOLEAN DEFAULT FALSE, sort_order INTEGER DEFAULT 0)",
+]
+
+MIGRATIONS = [
+    "ALTER TABLE site_prices ADD COLUMN IF NOT EXISTS kicker TEXT DEFAULT ''",
+    "ALTER TABLE site_prices ADD COLUMN IF NOT EXISTS rows_json TEXT DEFAULT '[]'",
+    "ALTER TABLE site_prices ADD COLUMN IF NOT EXISTS is_secondary BOOLEAN DEFAULT FALSE",
+    "ALTER TABLE site_prices ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0",
 ]
 
 def bootstrap_site(conn):
@@ -99,6 +106,8 @@ async def lifespan(app):
     with engine.begin() as conn:
         for statement in SCHEMA:
             conn.execute(text(statement))
+        for m in MIGRATIONS:
+            conn.execute(text(m))
         for name in ["Тайский бокс", "Бокс", "Киокусинкай-каратэ", "Йога", "BRATICA Transform"]:
             conn.execute(text("INSERT INTO directions(name) VALUES(:name) ON CONFLICT(name) DO NOTHING"), {"name": name})
         bootstrap_site(conn)
@@ -399,6 +408,14 @@ async def application_patch(ident: int, data: ApplicationPatch, user=Depends(get
     audit(user, "update", "application", ident)
     return {"ok": True, "id": ident}
 
+@app.delete("/api/admin/applications/{ident}")
+async def application_delete(ident: int, user=Depends(get_user)):
+    with engine.begin() as conn:
+        res = conn.execute(text("DELETE FROM applications WHERE id = :id"), {"id": ident})
+        if res.rowcount == 0: raise HTTPException(status_code=404, detail="Заявка не найдена")
+    audit(user, "delete", "application", ident)
+    return {"ok": True}
+
 @app.post("/api/admin/applications/{ident}/convert")
 async def convert_application(ident: int, user=Depends(get_user)):
     with engine.begin() as c:
@@ -574,7 +591,6 @@ async def training_update(ident: int, data: TrainingPatch, user=Depends(get_user
     audit(user, "update", "training", ident)
     return {"ok": True}
 
-# --- CRM ЭНДПОИНТЫ УПРАВЛЕНИЯ РАСПИСАНИЕМ И ПРАЙСОМ САЙТА ---
 @app.get("/api/admin/site_schedule")
 async def get_admin_schedule(user=Depends(get_user)):
     with engine.connect() as c:
@@ -631,13 +647,12 @@ async def delete_admin_prices(ident: int, user=Depends(get_user)):
     audit(user, "delete", "site_prices", ident)
     return {"ok": True}
 
-# --- ПИНГЕР ДЛЯ ПРЕДОТВРАЩЕНИЯ ЗАСЫПАНИЯ СЕРВЕРА ---
 def self_ping():
     while True:
         time.sleep(300)
         try:
-            httpx.get("https://bratica.onrender.com", timeout=10)
-        except:
+            urllib.request.urlopen("https://bratica.onrender.com", timeout=10)
+        except Exception:
             pass
 
 threading.Thread(target=self_ping, daemon=True).start()
