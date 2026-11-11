@@ -1439,3 +1439,18 @@ body.admin-body, .layout {
   }
 }
 
+/* --- ФИКС ШАПКИ ДЛЯ МОБИЛЬНЫХ И TELEGRAM WEBVIEW --- */
+.top {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  /* Учитываем вырезы экрана (челку/остров) на смартфонах */
+  padding-top: env(safe-area-inset-top, 0);
+  background: var(--header-bg) !important;
+}
+
+html, body {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
