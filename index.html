@@ -73,4 +73,25 @@ $('#menu').onclick=()=>$('#navlinks').classList.toggle('open');document.querySel
 const week=[['ПН',[['17:30','19:00','Тайский бокс','4+','Б'],['19:00','20:30','Киокусинкай-каратэ','','Б']]],['ВТ',[['18:30','19:45','Бокс','','Б'],['19:45','21:15','Тайский бокс','','Б'],['19:30','20:45','Киокусинкай-каратэ','14+','М']]],['СР',[['09:00','10:00','Йога','','М'],['17:30','19:00','Тайский бокс','4+','Б'],['19:00','20:30','Киокусинкай-каратэ','','Б']]],['ЧТ',[['18:30','19:45','Бокс','','Б'],['19:45','21:15','Тайский бокс','','Б'],['19:30','21:00','Тайский бокс','Взрослые','Б']]],['ПТ',[['17:30','19:00','Тайский бокс','','Б'],['19:00','20:30','Киокусинкай-каратэ','','Б']]],['ВС',[['10:00','11:00','Йога','','М']]]];let filter='all';const grid=$('#scheduleGrid');function renderSchedule(){grid.innerHTML=week.map(([day,lessons])=>`<article class="day"><h3>${day}</h3>${lessons.filter(x=>filter==='all'||x[2]===filter).map(x=>`<a class="lesson" href="#booking" data-dir="${x[2]}"><time>${x[0]} — ${x[1]}</time><b>${x[2]}</b><small>${x[3]||('Группа '+x[4])}</small></a>`).join('')||'<small style="color:var(--muted)">Нет занятий</small>'}</article>`).join('');grid.querySelectorAll('[data-dir]').forEach(a=>a.onclick=()=>setTimeout(()=>$('#direction').value=a.dataset.dir,0))}renderSchedule();$('#filters').onclick=e=>{const b=e.target.closest('[data-filter]');if(!b)return;filter=b.dataset.filter;document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x===b));renderSchedule()};document.querySelectorAll('[data-direction]').forEach(a=>a.onclick=()=>setTimeout(()=>$('#direction').value=a.dataset.direction,0));document.querySelectorAll('[data-price]').forEach(a=>a.onclick=()=>setTimeout(()=>$('#comment').value='Интересует: '+a.dataset.price,0));
 const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')}),{threshold:.12});document.querySelectorAll('.reveal').forEach(e=>observer.observe(e));
 const form=$('#bookingForm');form.onsubmit=async e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form)),status=$('#formStatus'),btn=$('#submitBtn');delete data.consent;btn.disabled=true;btn.textContent='Отправляем…';status.textContent='';try{const r=await fetch('/api/applications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(!r.ok)throw Error();const result=await r.json();status.textContent=`Заявка №${result.id} принята. Администратор свяжется с вами.`;form.reset()}catch(err){status.textContent='Ошибка отправки. Позвоните администратору: +7 (987) 912-81-47.'}finally{btn.disabled=false;btn.textContent='Отправить заявку ↗'}};
-</script></body></html>
+</script><script>
+// Автоматическая подгрузка расписания и цен из CRM на сайт
+async function loadDynamicContent() {
+  try {
+    const res = await fetch('/api/public/content');
+    const data = await res.json();
+    
+    if(data.schedule && data.schedule.length > 0) {
+      const days = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+      const grid = document.querySelector('#scheduleGrid');
+      if(grid) {
+        grid.innerHTML = days.map(day => {
+          const lessons = data.schedule.filter(l => l.day_name === day);
+          return `<article class="day"><h3>${day}</h3>${lessons.map(l=>`<a class="lesson" href="#booking"><time>${l.start_time} — ${l.end_time}</time><b>${l.title}</b><small>${l.info}</small></a>`).join('')||'<small style="color:var(--muted)">Нет занятий</small>'}</article>`;
+        }).join('');
+      }
+    }
+  } catch(e) {}
+}
+loadDynamicContent();
+</script>
+</body></html>
