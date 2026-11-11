@@ -458,3 +458,18 @@ async def attendance(data:AttendanceIn,user=Depends(get_user)):
             sub=fetch_one(c,"SELECT id,lessons_left FROM subscriptions WHERE client_id=:client AND status='active' AND starts_at<=CURRENT_DATE AND ends_at>=CURRENT_DATE AND (lessons_left IS NULL OR lessons_left>0) ORDER BY id DESC LIMIT 1 FOR UPDATE",{"client":data.client_id})
             if sub and sub["lessons_left"] is not None: c.execute(text("UPDATE subscriptions SET lessons_left=GREATEST(0,lessons_left+:delta) WHERE id=:id"),{"delta":delta,"id":sub["id"]})
     audit(user,"upsert","attendance",data.training_id); return {"ok":True}
+
+import threading
+
+# --- ПИНГЕР ДЛЯ ПРЕДОТВРАЩЕНИЯ ЗАСЫПАНИЯ СЕРВЕРА ---
+def self_ping():
+    while True:
+        time.sleep(300) # Каждые 5 минут (300 секунд)
+        try:
+            # Замени 'https://bratica.onrender.com' на твой реальный адрес сайта на Render
+            httpx.get("https://bratica.onrender.com", timeout=10)
+        except:
+            pass
+
+# Запускаем пингер в фоновом потоке при старте приложения
+threading.Thread(target=self_ping, daemon=True).start()
