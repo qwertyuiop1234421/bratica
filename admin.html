@@ -205,7 +205,7 @@ async function loadActiveSection(){
                     <button class="icon-btn" title="Редактировать" onclick="editScheduleItem(${s.id})">
                       <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                     </button>
-                    <button class="icon-btn danger" title="Удалить" onclick="deleteScheduleItem(${s.id})">
+                    <button class="icon-btn danger" title="Удалить" onclick="deleteAnyItem('site_schedule', ${s.id})">
                       <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                     </button>
                   </div>
@@ -240,7 +240,7 @@ async function loadActiveSection(){
                       <button class="icon-btn" title="Редактировать" onclick="editPriceItem(${p.id})">
                         <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                       </button>
-                      <button class="icon-btn danger" title="Удалить" onclick="deletePriceItem(${p.id})">
+                      <button class="icon-btn danger" title="Удалить" onclick="deleteAnyItem('site_prices', ${p.id})">
                         <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                       </button>
                     </div>
@@ -270,11 +270,9 @@ async function loadActiveSection(){
                       <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                     </button>
                     ${currentSection==='applications' ? `<button class="btn small" onclick="convertApp(${item.id})">В клиенты ↗</button>` : ''}
-                    ${currentSection==='applications' ? `
-                      <button class="icon-btn danger" title="Удалить заявку" onclick="deleteApplication(${item.id})">
-                        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                      </button>
-                    ` : ''}
+                    <button class="icon-btn danger" title="Удалить запись" onclick="deleteAnyItem('${currentSection}', ${item.id})">
+                      <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -286,7 +284,14 @@ async function loadActiveSection(){
   }
 }
 
-// Редактирование записей
+// Универсальная функция удаления записей
+window.deleteAnyItem = async (table, id) => {
+  if(confirm('Удалить эту запись безвозвратно?')) {
+    await api(`/api/admin/${table}/${id}`, {method: 'DELETE'});
+    loadActiveSection();
+  }
+};
+
 window.editGenericItem = id => {
   const item = currentDataList.find(x => x.id === id);
   if(!item) return;
@@ -334,14 +339,6 @@ window.editGenericItem = id => {
   }
 };
 
-window.deleteApplication = async id => {
-  if(confirm('Удалить эту анкету из CRM?')) {
-    await api(`/api/admin/applications/${id}`, {method: 'DELETE'});
-    loadActiveSection();
-  }
-};
-
-// РЕДАКТИРОВАНИЕ ПРАЙС-ЛИСТА
 window.editPriceItem = id => {
   const p = currentDataList.find(x => x.id === id);
   if(!p) return;
@@ -390,14 +387,6 @@ window.openCreatePrice = () => {
   });
 };
 
-window.deletePriceItem = async id => {
-  if(confirm('Удалить эту карточку из прайс-листа?')) {
-    await api(`/api/admin/site_prices/${id}`, {method: 'DELETE'});
-    loadActiveSection();
-  }
-};
-
-// РЕДАКТИРОВАНИЕ РАСПИСАНИЯ
 window.editScheduleItem = id => {
   const s = currentDataList.find(x => x.id === id);
   if(!s) return;
@@ -426,13 +415,6 @@ window.openCreateSchedule = () => {
     <div class="field-group"><label>Направление</label><input name="title" required placeholder="Тайский бокс"></div>
     <div class="field-group"><label>Группа / Примечание</label><input name="info" placeholder="4+ или Взрослые"></div>
   `, data => api('/api/admin/site_schedule', {method:'POST', body:JSON.stringify(data)}));
-};
-
-window.deleteScheduleItem = async id => {
-  if(confirm('Удалить это занятие из расписания?')) {
-    await api(`/api/admin/site_schedule/${id}`, {method: 'DELETE'});
-    loadActiveSection();
-  }
 };
 
 window.convertApp = async id => {
