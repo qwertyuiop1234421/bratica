@@ -33,9 +33,9 @@ body.admin-body { display: flex; min-height: 100vh; margin: 0; background: var(-
 .dash-card small { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; display: block; letter-spacing: 0.05em; }
 .dash-card b { display: block; font-family: 'Oswald', sans-serif; font-size: 32px; margin-top: 8px; color: var(--accent); }
 
-/* Модальное окно редактирования */
+/* Модальное окно */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-.modal-box { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-lg); width: min(520px, 100%); max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); padding: 28px; }
+.modal-box { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-lg); width: min(540px, 100%); max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); padding: 28px; }
 .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .modal-head h3 { margin: 0; font-family: 'Oswald', sans-serif; font-size: 22px; text-transform: uppercase; color: var(--text); }
 .modal-close { background: transparent; border: 0; color: var(--muted); font-size: 24px; cursor: pointer; line-height: 1; }
@@ -44,7 +44,7 @@ body.admin-body { display: flex; min-height: 100vh; margin: 0; background: var(-
 .field-group { display: grid; gap: 6px; text-align: left; }
 .field-group label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
 .field-group input, .field-group select, .field-group textarea { width: 100%; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--text); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; font-family: inherit; box-sizing: border-box; outline: none; }
-.field-group textarea { min-height: 70px; resize: vertical; }
+.field-group textarea { min-height: 80px; resize: vertical; }
 .field-group input:focus, .field-group select:focus, .field-group textarea:focus { border-color: var(--accent); }
 </style>
 </head>
@@ -66,6 +66,10 @@ body.admin-body { display: flex; min-height: 100vh; margin: 0; background: var(-
     <button data-section="site_schedule">
       <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5z"/></svg>
       Расписание сайта
+    </button>
+    <button data-section="site_prices">
+      <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1H6.32c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+      Прайс-лист сайта
     </button>
     <button data-section="clients">
       <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
@@ -108,7 +112,7 @@ body.admin-body { display: flex; min-height: 100vh; margin: 0; background: var(-
 const $=s=>document.querySelector(s);const root=document.documentElement;const themeToggle=$('#adminThemeToggle');
 function setTheme(t){root.dataset.theme=t;document.body.classList.toggle('light', t==='light');themeToggle.classList.toggle('light', t==='light');localStorage.setItem('bratica-theme', t);}
 setTheme(localStorage.getItem('bratica-theme') || 'dark');
-themeToggle.onclick=()=>setTheme(root.dataset.theme==='light'?'dark':'light');
+themeToggle.onclick=()=>setTheme(document.documentElement.dataset.theme==='light'?'dark':'light');
 
 let currentSection = 'dashboard';
 let currentDataList = [];
@@ -212,6 +216,42 @@ async function loadActiveSection(){
         </table>
       </div>
     `;
+  } else if(currentSection === 'site_prices') {
+    currentDataList = await api('/api/admin/site_prices') || [];
+    main.innerHTML = `
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+        <button class="btn small" onclick="openCreatePrice()">+ Добавить карточку прайса</button>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Заголовок</th><th>Категория</th><th>Цены (строки)</th><th style="text-align:right">Действия</th></tr></thead>
+          <tbody>
+            ${currentDataList.map(p => {
+              let rows = [];
+              try { rows = JSON.parse(p.rows_json || '[]'); } catch(e){}
+              const rowsSummary = rows.map(r=>`${r[0]}: <b>${r[1]}</b>`).join(', ');
+              return `
+                <tr>
+                  <td><b>${p.title}</b></td>
+                  <td><span style="color:var(--accent);font-size:11px">${p.kicker}</span></td>
+                  <td><small style="color:var(--muted)">${rowsSummary || '—'}</small></td>
+                  <td style="text-align:right">
+                    <div style="display:inline-flex;gap:6px">
+                      <button class="icon-btn" title="Редактировать" onclick="editPriceItem(${p.id})">
+                        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                      </button>
+                      <button class="icon-btn" title="Удалить" onclick="deletePriceItem(${p.id})">
+                        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--muted)">Прайс-лист пуст</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    `;
   } else {
     currentDataList = await api(`/api/admin/${currentSection}`) || [];
     main.innerHTML = `
@@ -241,7 +281,7 @@ async function loadActiveSection(){
   }
 }
 
-// Редактирование записей (Заявки, Клиенты, Тренеры, Абонементы, Оплаты)
+// Редактирование записей
 window.editGenericItem = id => {
   const item = currentDataList.find(x => x.id === id);
   if(!item) return;
@@ -289,7 +329,63 @@ window.editGenericItem = id => {
   }
 };
 
-// Редактирование расписания
+// РЕДАКТИРОВАНИЕ ПРАЙС-ЛИСТА
+window.editPriceItem = id => {
+  const p = currentDataList.find(x => x.id === id);
+  if(!p) return;
+  let rowsText = '';
+  try {
+    const rows = JSON.parse(p.rows_json || '[]');
+    rowsText = rows.map(r => `${r[0]} = ${r[1]}`).join('\n');
+  } catch(e){}
+
+  openEditModal(`Редактировать карточку прайса`, `
+    <div class="field-group"><label>Заголовок (например: Взрослое посещение)</label><input name="title" value="${p.title||''}" required></div>
+    <div class="field-group"><label>Категория (например: Единоборства · взрослые)</label><input name="kicker" value="${p.kicker||''}" required></div>
+    <div class="field-group">
+      <label>Строки цен (по одной на строку в формате: Название = Цена)</label>
+      <textarea name="raw_rows" placeholder="Разовое посещение = 400 ₽&#10;8 занятий = 2 900 ₽">${rowsText}</textarea>
+    </div>
+  `, async data => {
+    const lines = (data.raw_rows || '').split('\n').filter(l => l.trim().length > 0);
+    const rowsJson = lines.map(line => {
+      const parts = line.split('=');
+      return [parts[0] ? parts[0].trim() : '', parts[1] ? parts[1].trim() : ''];
+    });
+    delete data.raw_rows;
+    data.rows_json = JSON.stringify(rowsJson);
+    await api(`/api/admin/site_prices/${id}`, {method:'PATCH', body:JSON.stringify(data)});
+  });
+};
+
+window.openCreatePrice = () => {
+  openEditModal(`Новая карточка прайса`, `
+    <div class="field-group"><label>Заголовок (например: Детское посещение)</label><input name="title" required placeholder="Детское посещение"></div>
+    <div class="field-group"><label>Категория (например: Единоборства · дети)</label><input name="kicker" required placeholder="Единоборства · дети"></div>
+    <div class="field-group">
+      <label>Строки цен (по одной на строку: Название = Цена)</label>
+      <textarea name="raw_rows" placeholder="Разовое посещение = 400 ₽&#10;8 занятий = 2 600 ₽"></textarea>
+    </div>
+  `, async data => {
+    const lines = (data.raw_rows || '').split('\n').filter(l => l.trim().length > 0);
+    const rowsJson = lines.map(line => {
+      const parts = line.split('=');
+      return [parts[0] ? parts[0].trim() : '', parts[1] ? parts[1].trim() : ''];
+    });
+    delete data.raw_rows;
+    data.rows_json = JSON.stringify(rowsJson);
+    await api('/api/admin/site_prices', {method:'POST', body:JSON.stringify(data)});
+  });
+};
+
+window.deletePriceItem = async id => {
+  if(confirm('Удалить эту карточку из прайс-листа?')) {
+    await api(`/api/admin/site_prices/${id}`, {method: 'DELETE'});
+    loadActiveSection();
+  }
+};
+
+// РЕДАКТИРОВАНИЕ РАСПИСАНИЯ
 window.editScheduleItem = id => {
   const s = currentDataList.find(x => x.id === id);
   if(!s) return;
@@ -306,7 +402,6 @@ window.editScheduleItem = id => {
   `, data => api(`/api/admin/site_schedule/${id}`, {method:'PATCH', body:JSON.stringify(data)}));
 };
 
-// Добавление нового занятия
 window.openCreateSchedule = () => {
   openEditModal(`Новое занятие на сайт`, `
     <div class="field-group"><label>День недели</label>
@@ -318,7 +413,7 @@ window.openCreateSchedule = () => {
     <div class="field-group"><label>Время конца</label><input name="end_time" required placeholder="19:00"></div>
     <div class="field-group"><label>Направление</label><input name="title" required placeholder="Тайский бокс"></div>
     <div class="field-group"><label>Группа / Примечание</label><input name="info" placeholder="4+ или Взрослые"></div>
-  `, data => api(`/api/admin/site_schedule`, {method:'POST', body:JSON.stringify(data)}));
+  `, data => api('/api/admin/site_schedule', {method:'POST', body:JSON.stringify(data)}));
 };
 
 window.deleteScheduleItem = async id => {
